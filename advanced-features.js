@@ -549,6 +549,36 @@ class ContentFlowAdvancedFeatures {
         });
     }
 
+    toggleDarkMode() {
+        if (window.contentFlowApp) {
+            window.contentFlowApp.toggleDarkMode();
+        } else {
+            // Fallback implementation
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark);
+            this.isDarkMode = isDark;
+            this.showToast(`Dark mode ${isDark ? 'enabled' : 'disabled'}!`, 'success');
+        }
+    }
+
+    applyDarkMode() {
+        if (window.contentFlowApp) {
+            // Let the main app handle dark mode application
+            return;
+        }
+        
+        // Fallback implementation
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode === 'true') {
+            document.documentElement.classList.add('dark');
+            this.isDarkMode = true;
+        } else {
+            document.documentElement.classList.remove('dark');
+            this.isDarkMode = false;
+        }
+    }
+
     showToast(message, type = 'info') {
         if (window.contentFlowApp) {
             window.contentFlowApp.showToast(message, type);

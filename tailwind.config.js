@@ -5,6 +5,7 @@ module.exports = {
     "./*.js",
     "./src/*.css"
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: { 

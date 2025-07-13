@@ -2022,8 +2022,15 @@ class ContentFlowApp {
 
     // Advanced settings
     toggleDarkMode() {
+        console.log('Toggle dark mode called');
+        console.log('Before toggle - HTML classes:', document.documentElement.className);
+        
         document.documentElement.classList.toggle('dark');
         const isDark = document.documentElement.classList.contains('dark');
+        
+        console.log('After toggle - HTML classes:', document.documentElement.className);
+        console.log('Is dark mode:', isDark);
+        
         localStorage.setItem('darkMode', isDark);
         
         // Update the settings dark mode toggle
@@ -2207,16 +2214,24 @@ class ContentFlowApp {
     }
 
     setupDarkMode() {
+        console.log('Setting up dark mode');
+        
         // Check for saved dark mode preference
         const savedDarkMode = localStorage.getItem('darkMode');
+        console.log('Saved dark mode:', savedDarkMode);
+        
         if (savedDarkMode === 'true') {
             document.documentElement.classList.add('dark');
+            console.log('Added dark class to HTML element');
         }
 
         // Add event listener for settings dark mode toggle button
         const settingsDarkModeToggle = document.getElementById('settingsDarkModeToggle');
+        console.log('Dark mode toggle button found:', !!settingsDarkModeToggle);
+        
         if (settingsDarkModeToggle) {
             settingsDarkModeToggle.addEventListener('click', () => {
+                console.log('Dark mode toggle button clicked');
                 this.toggleDarkMode();
             });
         }
