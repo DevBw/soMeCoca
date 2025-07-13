@@ -161,6 +161,18 @@ html.dark select {
     color: #f1f5f9 !important;
 }
 
+/* Theme selector specific styling */
+html.dark #themeSelect {
+    background-color: #334155 !important;
+    border-color: #475569 !important;
+    color: #f1f5f9 !important;
+}
+
+html.dark #themeSelect option {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+
 html.dark input:focus,
 html.dark textarea:focus,
 html.dark select:focus {

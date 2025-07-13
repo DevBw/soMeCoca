@@ -2021,6 +2021,38 @@ class ContentFlowApp {
     }
 
     // Advanced settings
+    setTheme(theme) {
+        console.log('Setting theme to:', theme);
+        
+        // Remove existing theme classes
+        document.documentElement.classList.remove('dark');
+        
+        switch (theme) {
+            case 'system':
+                localStorage.removeItem('darkMode');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (systemPrefersDark) {
+                    document.documentElement.classList.add('dark');
+                }
+                this.showToast('Theme set to system preference', 'success');
+                break;
+                
+            case 'dark':
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('darkMode', 'true');
+                this.showToast('Dark theme enabled', 'success');
+                break;
+                
+            case 'light':
+                localStorage.setItem('darkMode', 'false');
+                this.showToast('Light theme enabled', 'success');
+                break;
+        }
+        
+        // Update the theme selector
+        this.updateThemeSelector();
+    }
+    
     toggleDarkMode() {
         console.log('Toggle dark mode called');
         console.log('Before toggle - HTML classes:', document.documentElement.className);
@@ -2220,26 +2252,74 @@ class ContentFlowApp {
         const savedDarkMode = localStorage.getItem('darkMode');
         console.log('Saved dark mode:', savedDarkMode);
         
-        if (savedDarkMode === 'true') {
+        // If no saved preference, use system preference
+        if (savedDarkMode === null) {
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            console.log('System prefers dark:', systemPrefersDark);
+            
+            if (systemPrefersDark) {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('darkMode', 'true');
+                console.log('Applied system dark mode preference');
+            } else {
+                localStorage.setItem('darkMode', 'false');
+                console.log('Applied system light mode preference');
+            }
+        } else if (savedDarkMode === 'true') {
             document.documentElement.classList.add('dark');
             console.log('Added dark class to HTML element');
         }
 
-        // Add event listener for settings dark mode toggle button
-        const settingsDarkModeToggle = document.getElementById('settingsDarkModeToggle');
-        console.log('Dark mode toggle button found:', !!settingsDarkModeToggle);
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            // Only auto-switch if user hasn't manually set a preference
+            if (localStorage.getItem('darkMode') === null) {
+                if (e.matches) {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('darkMode', 'true');
+                    console.log('System switched to dark mode');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('darkMode', 'false');
+                    console.log('System switched to light mode');
+                }
+                this.updateThemeSelector();
+            }
+        });
+
+        // Add event listener for theme selector
+        const themeSelect = document.getElementById('themeSelect');
+        console.log('Theme select found:', !!themeSelect);
         
-        if (settingsDarkModeToggle) {
-            settingsDarkModeToggle.addEventListener('click', () => {
-                console.log('Dark mode toggle button clicked');
-                this.toggleDarkMode();
+        if (themeSelect) {
+            themeSelect.addEventListener('change', (e) => {
+                console.log('Theme changed to:', e.target.value);
+                this.setTheme(e.target.value);
             });
         }
 
-        // Update settings toggle state on page load
-        this.updateSettingsDarkModeToggle();
+        // Update theme selector state on page load
+        this.updateThemeSelector();
     }
 
+    updateThemeSelector() {
+        const themeSelect = document.getElementById('themeSelect');
+        
+        if (themeSelect) {
+            const savedDarkMode = localStorage.getItem('darkMode');
+            const isDark = document.documentElement.classList.contains('dark');
+            
+            if (savedDarkMode === null) {
+                // System preference
+                themeSelect.value = 'system';
+            } else if (savedDarkMode === 'true') {
+                themeSelect.value = 'dark';
+            } else {
+                themeSelect.value = 'light';
+            }
+        }
+    }
+    
     updateSettingsDarkModeToggle() {
         const settingsDarkModeToggle = document.getElementById('settingsDarkModeToggle');
         const settingsDarkModeSlider = document.getElementById('settingsDarkModeSlider');
