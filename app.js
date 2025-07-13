@@ -601,6 +601,7 @@ class ContentFlowApp {
         this.setupDarkMode();
         this.setupNotifications();
         this.setupProfileDropdown();
+        this.setupPlatformSelection();
     }
 
     setupViewToggle() {
@@ -1135,6 +1136,7 @@ class ContentFlowApp {
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             this.populateEnhancedModalWithDefaults();
+            this.setupPlatformSelection();
         }
     }
 
