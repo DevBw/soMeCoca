@@ -411,7 +411,7 @@ class ContentFlowApp {
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 6);
 
-        const dateDisplay = document.querySelector('h2.text-lg.font-semibold');
+        const dateDisplay = document.getElementById('dateDisplay');
         if (dateDisplay) {
             dateDisplay.textContent = `${weekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { day: 'numeric', year: 'numeric' })}`;
         }

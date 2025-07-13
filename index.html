@@ -1,407 +1,275 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Flow</title>
-    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: { primary: "#6366f1", secondary: "#a855f7" },
-            borderRadius: {
-              none: "0px",
-              sm: "4px",
-              DEFAULT: "8px",
-              md: "12px",
-              lg: "16px",
-              xl: "20px",
-              "2xl": "24px",
-              "3xl": "32px",
-              full: "9999px",
-              button: "8px",
-            },
-          },
-        },
-      };
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 
+                        primary: "#6366f1", 
+                        secondary: "#a855f7" 
+                    }
+                }
+            }
+        }
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
     <style>
-      :where([class^="ri-"])::before { content: ""; }
-      body {
-          font-family: 'Inter', sans-serif;
-          background-color: #f9fafb;
-      }
-      .calendar-cell:active {
-          transform: scale(0.98);
-          transition: transform 0.1s;
-      }
-      .fab-button:active {
-          transform: scale(0.95);
-          transition: transform 0.1s;
-      }
-      .view-toggle-button.active {
-          background-color: #6366f1;
-          color: white;
-      }
-      .filter-chip.active {
-          background-color: #6366f1;
-          color: white;
-      }
-      .platform-indicator {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          display: inline-block;
-      }
-      .calendar-cell {
-          min-height: 6rem;
-          height: auto;
-      }
-      @media (max-width: 640px) {
-          .calendar-cell {
-              min-height: 4rem;
-          }
-      }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .calendar-cell {
+            min-height: 80px;
+            transition: all 0.2s ease;
+        }
+        .calendar-cell:hover {
+            transform: scale(1.02);
+        }
+        .calendar-cell:active {
+            transform: scale(0.98);
+        }
+        .view-toggle-button.active {
+            background-color: #6366f1;
+            color: white;
+        }
+        .filter-chip.active {
+            background-color: #6366f1;
+            color: white;
+        }
     </style>
-  </head>
-  <body class="bg-white text-gray-800">
-    <!-- Header -->
-    <header class="fixed top-0 w-full bg-white shadow-sm z-50 max-h-screen overflow-y-auto">
-      <div class="flex justify-between items-center px-4 py-3">
-        <h1 class="text-xl font-['Pacifico'] text-primary">Content Flow</h1>
-        <div class="flex items-center space-x-4">
-          <div
-            class="w-8 h-8 flex items-center justify-center relative cursor-pointer"
-          >
-            <i class="ri-notification-3-line ri-lg"></i>
-            <span
-              class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"
-            ></span>
-          </div>
-          <div class="w-8 h-8 flex items-center justify-center cursor-pointer">
-            <img
-              src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20woman%20with%20short%20brown%20hair%2C%20minimal%20makeup%2C%20friendly%20smile%2C%20professional%20appearance%2C%20isolated%20on%20white%20background%2C%20high%20quality%2C%20photorealistic&width=100&height=100&seq=1&orientation=squarish"
-              alt="Profile"
-              class="w-8 h-8 rounded-full object-cover"
-            />
-          </div>
+</head>
+<body>
+    <!-- Simple Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <h1 class="text-xl font-bold text-primary">Content Flow</h1>
+                <div class="flex items-center space-x-4">
+                    <button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
+                        <i class="ri-notification-3-line"></i>
+                    </button>
+                    <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <!-- View toggle -->
-      <div class="flex justify-center px-4 py-2 border-b border-gray-100">
-        <div class="inline-flex rounded-full bg-gray-100 p-1">
-          <button
-            class="view-toggle-button px-4 py-1 rounded-full text-sm font-medium"
-          >
-            Month
-          </button>
-          <button
-            class="view-toggle-button active px-4 py-1 rounded-full text-sm font-medium"
-          >
-            Week
-          </button>
-          <button
-            class="view-toggle-button px-4 py-1 rounded-full text-sm font-medium"
-          >
-            Day
-          </button>
-        </div>
-      </div>
-
-      <!-- Date navigation -->
-      <div class="flex justify-between items-center px-4 py-3">
-        <div class="flex items-center space-x-2">
-          <button
-            class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 cursor-pointer"
-          >
-            <i class="ri-arrow-left-s-line ri-lg"></i>
-          </button>
-          <h2 class="text-lg font-semibold">June 24 - 30, 2025</h2>
-          <button
-            class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 cursor-pointer"
-          >
-            <i class="ri-arrow-right-s-line ri-lg"></i>
-          </button>
-        </div>
-        <button
-          class="flex items-center justify-center space-x-1 text-sm text-primary font-medium cursor-pointer"
-        >
-          <i class="ri-calendar-line"></i>
-          <span>Today</span>
-        </button>
-      </div>
-
-      <!-- Filters -->
-      <div
-        class="flex items-center space-x-2 px-4 py-2 overflow-x-auto whitespace-nowrap"
-      >
-        <button
-          class="filter-chip active px-3 py-1 text-xs rounded-full bg-gray-100 font-medium cursor-pointer"
-        >
-          All
-        </button>
-        <button
-          class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium cursor-pointer"
-        >
-          Instagram
-        </button>
-        <button
-          class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium cursor-pointer"
-        >
-          Twitter
-        </button>
-        <button
-          class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium cursor-pointer"
-        >
-          YouTube
-        </button>
-        <button
-          class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium cursor-pointer"
-        >
-          TikTok
-        </button>
-        <button
-          class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium cursor-pointer"
-        >
-          Blog
-        </button>
-      </div>
     </header>
 
-    <!-- Main content - Calendar -->
-    <main class="pt-32 pb-16 px-2 sm:px-4">
-      <!-- Weekday headers -->
-      <div class="grid grid-cols-7 mb-1 max-w-4xl mx-auto">
-        <div class="text-center text-xs font-medium text-gray-500">Mon</div>
-        <div class="text-center text-xs font-medium text-gray-500">Tue</div>
-        <div class="text-center text-xs font-medium text-gray-500">Wed</div>
-        <div class="text-center text-xs font-medium text-gray-500">Thu</div>
-        <div class="text-center text-xs font-medium text-gray-500">Fri</div>
-        <div class="text-center text-xs font-medium text-gray-500">Sat</div>
-        <div class="text-center text-xs font-medium text-gray-500">Sun</div>
-      </div>
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-4 py-2">
+            <!-- View Toggle -->
+            <div class="flex justify-center mb-3">
+                <div class="inline-flex rounded-full bg-gray-100 p-1">
+                    <button class="view-toggle-button px-4 py-1 rounded-full text-sm font-medium">Month</button>
+                    <button class="view-toggle-button active px-4 py-1 rounded-full text-sm font-medium">Week</button>
+                    <button class="view-toggle-button px-4 py-1 rounded-full text-sm font-medium">Day</button>
+                </div>
+            </div>
 
-      <!-- Calendar grid -->
-      <div class="grid grid-cols-7 gap-1 max-w-4xl mx-auto" id="calendarGrid">
-        <!-- Calendar cells will be generated by JavaScript -->
-      </div>
+            <!-- Date Navigation -->
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center space-x-2">
+                    <button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
+                        <i class="ri-arrow-left-s-line"></i>
+                    </button>
+                    <h2 class="text-lg font-semibold" id="dateDisplay">June 24 - 30, 2025</h2>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
+                        <i class="ri-arrow-right-s-line"></i>
+                    </button>
+                </div>
+                <button class="flex items-center space-x-1 text-sm text-primary font-medium">
+                    <i class="ri-calendar-line"></i>
+                    <span>Today</span>
+                </button>
+            </div>
 
-      <!-- Upcoming content section -->
-      <div class="mt-6 max-w-4xl mx-auto">
-        <h3 class="text-sm font-semibold mb-2 px-2">Upcoming Content</h3>
-        <div class="space-y-3 px-2" id="upcomingContent">
-          <!-- Content cards will be generated by JavaScript -->
+            <!-- Filters -->
+            <div class="flex items-center space-x-2 overflow-x-auto">
+                <button class="filter-chip active px-3 py-1 text-xs rounded-full bg-gray-100 font-medium whitespace-nowrap">All</button>
+                <button class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium whitespace-nowrap">Instagram</button>
+                <button class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium whitespace-nowrap">Twitter</button>
+                <button class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium whitespace-nowrap">YouTube</button>
+                <button class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium whitespace-nowrap">TikTok</button>
+                <button class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium whitespace-nowrap">Blog</button>
+            </div>
         </div>
-      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        <!-- Calendar Section -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+            <!-- Weekday Headers -->
+            <div class="grid grid-cols-7 gap-1 mb-2">
+                <div class="text-center text-xs font-medium text-gray-500 p-2">Mon</div>
+                <div class="text-center text-xs font-medium text-gray-500 p-2">Tue</div>
+                <div class="text-center text-xs font-medium text-gray-500 p-2">Wed</div>
+                <div class="text-center text-xs font-medium text-gray-500 p-2">Thu</div>
+                <div class="text-center text-xs font-medium text-gray-500 p-2">Fri</div>
+                <div class="text-center text-xs font-medium text-gray-500 p-2">Sat</div>
+                <div class="text-center text-xs font-medium text-gray-500 p-2">Sun</div>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="grid grid-cols-7 gap-1" id="calendarGrid">
+                <!-- Calendar cells will be generated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Upcoming Content Section -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <h3 class="text-lg font-semibold mb-4">Upcoming Content</h3>
+            <div id="upcomingContent">
+                <!-- Content cards will be generated by JavaScript -->
+            </div>
+        </div>
     </main>
 
     <!-- Floating Action Button -->
-    <div class="fixed right-4 bottom-24">
-      <button
-        class="fab-button w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center cursor-pointer"
-      >
-        <i class="ri-add-line ri-xl text-white"></i>
-      </button>
-    </div>
+    <button class="fab-button fixed right-6 bottom-20 w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white">
+        <i class="ri-add-line text-xl"></i>
+    </button>
 
     <!-- Bottom Navigation -->
-    <nav
-      class="fixed bottom-0 w-full bg-white border-t border-gray-200 px-2 py-2"
-    >
-      <div class="grid grid-cols-4 gap-1">
-        <a
-          href="#"
-          class="flex flex-col items-center justify-center py-1 text-primary cursor-pointer"
-        >
-          <div class="w-6 h-6 flex items-center justify-center">
-            <i class="ri-calendar-line ri-lg"></i>
-          </div>
-          <span class="text-xs mt-1">Calendar</span>
-        </a>
-        <a
-          href="#"
-          class="flex flex-col items-center justify-center py-1 text-gray-500 cursor-pointer"
-        >
-          <div class="w-6 h-6 flex items-center justify-center">
-            <i class="ri-folder-line ri-lg"></i>
-          </div>
-          <span class="text-xs mt-1">Library</span>
-        </a>
-        <a
-          href="#"
-          class="flex flex-col items-center justify-center py-1 text-gray-500 cursor-pointer"
-        >
-          <div class="w-6 h-6 flex items-center justify-center">
-            <i class="ri-bar-chart-line ri-lg"></i>
-          </div>
-          <span class="text-xs mt-1">Analytics</span>
-        </a>
-        <a
-          href="#"
-          class="flex flex-col items-center justify-center py-1 text-gray-500 cursor-pointer"
-        >
-          <div class="w-6 h-6 flex items-center justify-center">
-            <i class="ri-settings-3-line ri-lg"></i>
-          </div>
-          <span class="text-xs mt-1">Settings</span>
-        </a>
-      </div>
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+        <div class="grid grid-cols-4 gap-1 p-2">
+            <a href="#" class="flex flex-col items-center justify-center py-2 text-primary">
+                <i class="ri-calendar-line text-lg"></i>
+                <span class="text-xs mt-1">Calendar</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center py-2 text-gray-500">
+                <i class="ri-folder-line text-lg"></i>
+                <span class="text-xs mt-1">Library</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center py-2 text-gray-500">
+                <i class="ri-bar-chart-line text-lg"></i>
+                <span class="text-xs mt-1">Analytics</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center py-2 text-gray-500">
+                <i class="ri-settings-3-line text-lg"></i>
+                <span class="text-xs mt-1">Settings</span>
+            </a>
+        </div>
     </nav>
 
     <!-- Enhanced Content Creation Modal -->
     <div id="enhancedContentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center hidden">
-      <div class="bg-white rounded-lg w-[400px] mx-auto mt-10 overflow-hidden max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center p-4 border-b bg-gray-50">
-          <h3 class="font-semibold text-lg">Create New Content</h3>
-          <button id="closeEnhancedModalBtn" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 cursor-pointer">
-            <i class="ri-close-line ri-lg"></i>
-          </button>
+        <div class="bg-white rounded-lg w-[400px] mx-auto mt-10 overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-4 border-b bg-gray-50">
+                <h3 class="font-semibold text-lg">Create New Content</h3>
+                <button id="closeEnhancedModalBtn" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- Platform Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-3 text-gray-700">Platform</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Instagram">
+                            <i class="ri-instagram-line text-xl text-pink-500 mb-2"></i>
+                            <span class="text-xs font-medium">Instagram</span>
+                        </button>
+                        <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Twitter">
+                            <i class="ri-twitter-line text-xl text-blue-500 mb-2"></i>
+                            <span class="text-xs font-medium">Twitter</span>
+                        </button>
+                        <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="YouTube">
+                            <i class="ri-youtube-line text-xl text-red-500 mb-2"></i>
+                            <span class="text-xs font-medium">YouTube</span>
+                        </button>
+                        <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="TikTok">
+                            <i class="ri-tiktok-line text-xl text-purple-500 mb-2"></i>
+                            <span class="text-xs font-medium">TikTok</span>
+                        </button>
+                        <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Blog">
+                            <i class="ri-article-line text-xl text-green-500 mb-2"></i>
+                            <span class="text-xs font-medium">Blog</span>
+                        </button>
+                        <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Newsletter">
+                            <i class="ri-mail-line text-xl text-indigo-500 mb-2"></i>
+                            <span class="text-xs font-medium">Newsletter</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Content Type -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-3 text-gray-700">Content Type</label>
+                    <select id="contentTypeSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="Post">Post</option>
+                        <option value="Story">Story</option>
+                        <option value="Video">Video</option>
+                        <option value="Article">Article</option>
+                        <option value="Email">Email</option>
+                        <option value="Reel">Reel</option>
+                    </select>
+                </div>
+
+                <!-- Title -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2 text-gray-700">Title *</label>
+                    <input id="enhancedContentTitle" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter content title" maxlength="100">
+                    <div class="text-xs text-gray-500 mt-1 text-right">
+                        <span id="titleCharCount">0</span>/100
+                    </div>
+                </div>
+
+                <!-- Date & Time -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2 text-gray-700">Schedule *</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">Date</label>
+                            <input id="enhancedContentDate" type="date" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">Time</label>
+                            <input id="enhancedContentTime" type="time" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2 text-gray-700">Status</label>
+                    <select id="contentStatusSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="Draft">Draft</option>
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Ready">Ready</option>
+                        <option value="Published">Published</option>
+                    </select>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2 text-gray-700">Description</label>
+                    <textarea id="enhancedContentDescription" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-24 resize-none" placeholder="Enter content description..." maxlength="500"></textarea>
+                    <div class="text-xs text-gray-500 mt-1 text-right">
+                        <span id="descCharCount">0</span>/500
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-3">
+                    <button id="saveAsDraftBtn" class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                        Save as Draft
+                    </button>
+                    <button id="createEnhancedContentBtn" class="flex-1 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors">
+                        Create Content
+                    </button>
+                </div>
+            </div>
         </div>
-        
-        <div class="p-6">
-          <!-- Platform Selection -->
-          <div class="mb-6">
-            <label class="block text-sm font-medium mb-3 text-gray-700">Platform</label>
-            <div class="grid grid-cols-3 gap-3">
-              <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Instagram">
-                <i class="ri-instagram-line ri-xl text-pink-500 mb-2"></i>
-                <span class="text-xs font-medium">Instagram</span>
-              </button>
-              <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Twitter">
-                <i class="ri-twitter-line ri-xl text-blue-500 mb-2"></i>
-                <span class="text-xs font-medium">Twitter</span>
-              </button>
-              <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="YouTube">
-                <i class="ri-youtube-line ri-xl text-red-500 mb-2"></i>
-                <span class="text-xs font-medium">YouTube</span>
-              </button>
-              <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="TikTok">
-                <i class="ri-tiktok-line ri-xl text-purple-500 mb-2"></i>
-                <span class="text-xs font-medium">TikTok</span>
-              </button>
-              <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Blog">
-                <i class="ri-article-line ri-xl text-green-500 mb-2"></i>
-                <span class="text-xs font-medium">Blog</span>
-              </button>
-              <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Newsletter">
-                <i class="ri-mail-line ri-xl text-indigo-500 mb-2"></i>
-                <span class="text-xs font-medium">Newsletter</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Content Type -->
-          <div class="mb-6">
-            <label class="block text-sm font-medium mb-3 text-gray-700">Content Type</label>
-            <select id="contentTypeSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-              <option value="Post">Post</option>
-              <option value="Story">Story</option>
-              <option value="Video">Video</option>
-              <option value="Article">Article</option>
-              <option value="Email">Email</option>
-              <option value="Reel">Reel</option>
-            </select>
-          </div>
-
-          <!-- Title -->
-          <div class="mb-6">
-            <label class="block text-sm font-medium mb-2 text-gray-700">Title *</label>
-            <input
-              id="enhancedContentTitle"
-              type="text"
-              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter content title"
-              maxlength="100"
-            />
-            <div class="text-xs text-gray-500 mt-1 text-right">
-              <span id="titleCharCount">0</span>/100
-            </div>
-          </div>
-
-          <!-- Date & Time -->
-          <div class="mb-6">
-            <label class="block text-sm font-medium mb-2 text-gray-700">Schedule *</label>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs text-gray-600 mb-1">Date</label>
-                <input
-                  id="enhancedContentDate"
-                  type="date"
-                  class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label class="block text-xs text-gray-600 mb-1">Time</label>
-                <input
-                  id="enhancedContentTime"
-                  type="time"
-                  class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Status -->
-          <div class="mb-6">
-            <label class="block text-sm font-medium mb-2 text-gray-700">Status</label>
-            <select id="contentStatusSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-              <option value="Draft">Draft</option>
-              <option value="Scheduled">Scheduled</option>
-              <option value="Ready">Ready</option>
-              <option value="Published">Published</option>
-            </select>
-          </div>
-
-          <!-- Description -->
-          <div class="mb-6">
-            <label class="block text-sm font-medium mb-2 text-gray-700">Description</label>
-            <textarea
-              id="enhancedContentDescription"
-              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-24 resize-none"
-              placeholder="Enter content description..."
-              maxlength="500"
-            ></textarea>
-            <div class="text-xs text-gray-500 mt-1 text-right">
-              <span id="descCharCount">0</span>/500
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex space-x-3">
-            <button
-              id="saveAsDraftBtn"
-              class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Save as Draft
-            </button>
-            <button
-              id="createEnhancedContentBtn"
-              class="flex-1 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Create Content
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Main App JavaScript -->
     <script src="app.js"></script>
-  </body>
+</body>
 </html>
