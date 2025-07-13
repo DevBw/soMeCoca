@@ -510,12 +510,33 @@ class ContentFlowApp {
             cell.addEventListener('click', () => {
                 const date = cell.dataset.date;
                 if (date && !cell.classList.contains('bg-gray-50')) {
+                    // Add visual feedback
+                    cell.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        cell.style.transform = 'scale(1)';
+                    }, 150);
+                    
                     const content = this.getContentForDate(date);
                     if (content.length > 0) {
                         this.showContentDetails(content, date);
                     } else {
-                        this.showToast(`No content scheduled for ${new Date(date).toLocaleDateString()}`, 'info');
+                        // Show option to create content for this date
+                        this.showCreateContentForDate(date);
                     }
+                }
+            });
+            
+            // Add hover effects
+            cell.addEventListener('mouseenter', () => {
+                if (!cell.classList.contains('bg-gray-50')) {
+                    cell.style.transform = 'scale(1.02)';
+                    cell.style.transition = 'transform 0.2s ease';
+                }
+            });
+            
+            cell.addEventListener('mouseleave', () => {
+                if (!cell.classList.contains('bg-gray-50')) {
+                    cell.style.transform = 'scale(1)';
                 }
             });
         });
@@ -843,6 +864,113 @@ class ContentFlowApp {
         this.closeModal();
     }
 
+    // Show create content option for empty dates
+    showCreateContentForDate(date) {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg w-[340px] mx-auto overflow-hidden">
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="font-semibold">${new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
+                    <button class="close-create-modal w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                        <i class="ri-close-line ri-lg"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <p class="text-gray-600 mb-4">No content scheduled for this date.</p>
+                    <div class="flex space-x-3">
+                        <button class="create-content-btn flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors">
+                            <i class="ri-add-line mr-2"></i>Create Content
+                        </button>
+                        <button class="cancel-create-btn flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.querySelector('.close-create-modal').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        modal.querySelector('.cancel-create-btn').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        modal.querySelector('.create-content-btn').addEventListener('click', () => {
+            modal.remove();
+            this.openEnhancedModalWithDate(date);
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    // Confirm delete content
+    confirmDeleteContent(content, parentModal) {
+        const confirmModal = document.createElement('div');
+        confirmModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        confirmModal.innerHTML = `
+            <div class="bg-white rounded-lg w-[300px] mx-auto overflow-hidden">
+                <div class="p-4 border-b">
+                    <h3 class="font-semibold text-red-600">Delete Content</h3>
+                </div>
+                <div class="p-4">
+                    <p class="text-gray-600 mb-4">Are you sure you want to delete "${content.title}"?</p>
+                    <div class="flex space-x-3">
+                        <button class="confirm-delete-btn flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                            Delete
+                        </button>
+                        <button class="cancel-delete-btn flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(confirmModal);
+
+        confirmModal.querySelector('.confirm-delete-btn').addEventListener('click', () => {
+            this.deleteContent(content.id);
+            confirmModal.remove();
+            parentModal.remove();
+        });
+
+        confirmModal.querySelector('.cancel-delete-btn').addEventListener('click', () => {
+            confirmModal.remove();
+        });
+
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                confirmModal.remove();
+            }
+        });
+    }
+
+    // Open enhanced modal with pre-filled date
+    openEnhancedModalWithDate(date) {
+        const modal = document.getElementById('enhancedContentModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Pre-fill the date
+            const dateInput = document.getElementById('enhancedContentDate');
+            if (dateInput) {
+                dateInput.value = date;
+            }
+            
+            this.populateEnhancedModalWithDefaults();
+        }
+    }
+
     // Content Details Modal
     showContentDetails(content, date) {
         const modal = document.createElement('div');
@@ -867,9 +995,26 @@ class ContentFlowApp {
             modal.remove();
         });
 
+        // Add event listeners for edit and delete buttons
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.remove();
+                return;
+            }
+
+            const contentCard = e.target.closest('[data-content-id]');
+            if (!contentCard) return;
+
+            const contentId = contentCard.dataset.contentId;
+            const content = this.content.find(item => item.id === contentId);
+
+            if (e.target.closest('.edit-content-btn')) {
+                e.stopPropagation();
+                modal.remove();
+                this.openEditModal(content);
+            } else if (e.target.closest('.delete-content-btn')) {
+                e.stopPropagation();
+                this.confirmDeleteContent(content, modal);
             }
         });
     }
@@ -880,7 +1025,7 @@ class ContentFlowApp {
         const statusColor = this.getStatusColor(item.status);
 
         return `
-            <div class="border rounded-lg p-3 mb-3">
+            <div class="border rounded-lg p-3 mb-3" data-content-id="${item.id}">
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center space-x-2">
                         <div class="w-8 h-8 flex items-center justify-center ${platformColor} rounded-lg">
@@ -888,7 +1033,15 @@ class ContentFlowApp {
                         </div>
                         <span class="font-medium">${item.title}</span>
                     </div>
-                    <span class="text-xs font-medium px-2 py-1 ${statusColor} rounded-full">${item.status}</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-medium px-2 py-1 ${statusColor} rounded-full">${item.status}</span>
+                        <button class="edit-content-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100" title="Edit">
+                            <i class="ri-edit-line text-xs text-gray-500"></i>
+                        </button>
+                        <button class="delete-content-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-red-100" title="Delete">
+                            <i class="ri-delete-bin-line text-xs text-red-500"></i>
+                        </button>
+                    </div>
                 </div>
                 <p class="text-sm text-gray-600 mb-2">${item.description}</p>
                 <div class="flex justify-between items-center text-xs text-gray-500">
