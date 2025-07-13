@@ -602,6 +602,7 @@ class ContentFlowApp {
         this.setupNotifications();
         this.setupProfileDropdown();
         this.setupPlatformSelection();
+        this.setupTimeInput();
     }
 
     setupViewToggle() {
@@ -1111,6 +1112,47 @@ class ContentFlowApp {
         }
     }
 
+    setupTimeInput() {
+        const timeInput = document.getElementById('enhancedContentTime');
+        if (timeInput) {
+            // Set default time if empty
+            if (!timeInput.value) {
+                timeInput.value = '12:00';
+            }
+
+            // Add click handler to make it easier to select
+            timeInput.addEventListener('click', () => {
+                timeInput.showPicker && timeInput.showPicker();
+            });
+
+            // Add keyboard navigation
+            timeInput.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const currentTime = timeInput.value;
+                    if (currentTime) {
+                        const [hours, minutes] = currentTime.split(':').map(Number);
+                        let newMinutes = minutes;
+                        
+                        if (e.key === 'ArrowUp') {
+                            newMinutes += 15;
+                        } else {
+                            newMinutes -= 15;
+                        }
+                        
+                        if (newMinutes >= 60) {
+                            newMinutes = 0;
+                        } else if (newMinutes < 0) {
+                            newMinutes = 45;
+                        }
+                        
+                        timeInput.value = `${hours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+                    }
+                }
+            });
+        }
+    }
+
     setupBottomNavigation() {
         const navItems = document.querySelectorAll('nav a');
         navItems.forEach(item => {
@@ -1137,6 +1179,7 @@ class ContentFlowApp {
             modal.classList.add('flex');
             this.populateEnhancedModalWithDefaults();
             this.setupPlatformSelection();
+            this.setupTimeInput();
         }
     }
 
