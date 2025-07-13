@@ -990,7 +990,7 @@ class ContentFlowApp {
     setupContentCardEventListeners() {
         const contentCards = document.querySelectorAll('[data-content-id]');
         contentCards.forEach(card => {
-            const editBtn = card.querySelector('.content-edit-btn');
+            const editBtn = card.querySelector('.edit-content-btn');
             if (editBtn) {
                 editBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1018,6 +1018,18 @@ class ContentFlowApp {
                     e.stopPropagation();
                     const contentId = createTemplateBtn.dataset.contentId;
                     this.createTemplateFromContent(contentId);
+                });
+            }
+
+            const deleteBtn = card.querySelector('.delete-content-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const contentId = card.dataset.contentId;
+                    const content = this.content.find(item => item.id === contentId);
+                    if (content) {
+                        this.confirmDeleteContent(content, null);
+                    }
                 });
             }
 
