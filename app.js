@@ -1150,11 +1150,11 @@ class ContentFlowApp {
     }
 
     openEditModal(content) {
-        const modal = document.getElementById('createContentModal');
+        const modal = document.getElementById('enhancedContentModal');
         if (modal) {
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            this.populateModalWithContent(content);
+            this.populateEnhancedModalWithContent(content);
         }
     }
 
@@ -1233,6 +1233,33 @@ class ContentFlowApp {
         modal.dataset.editId = content.id;
     }
 
+    populateEnhancedModalWithContent(content) {
+        const titleInput = document.getElementById('enhancedContentTitle');
+        const dateInput = document.getElementById('enhancedContentDate');
+        const timeInput = document.getElementById('enhancedContentTime');
+        const descInput = document.getElementById('enhancedContentDescription');
+        const contentTypeSelect = document.getElementById('contentTypeSelect');
+        const statusSelect = document.getElementById('contentStatusSelect');
+
+        if (titleInput) titleInput.value = content.title;
+        if (dateInput) dateInput.value = content.date;
+        if (timeInput) timeInput.value = content.time;
+        if (descInput) descInput.value = content.description;
+        if (contentTypeSelect) contentTypeSelect.value = content.type || 'Post';
+        if (statusSelect) statusSelect.value = content.status || 'Draft';
+
+        // Update character counters
+        document.getElementById('titleCharCount').textContent = content.title?.length || 0;
+        document.getElementById('descCharCount').textContent = content.description?.length || 0;
+
+        // Set the platform
+        this.selectPlatform(content.platform || 'Instagram');
+
+        // Store the content ID for editing
+        const modal = document.getElementById('enhancedContentModal');
+        modal.dataset.editId = content.id;
+    }
+
     clearModalForm() {
         const titleInput = document.getElementById('contentTitle');
         const dateInput = document.getElementById('contentDate');
@@ -1255,6 +1282,7 @@ class ContentFlowApp {
         const contentType = document.getElementById('contentTypeSelect')?.value;
         const status = document.getElementById('contentStatusSelect')?.value;
         const selectedPlatform = document.querySelector('.platform-option.border-primary')?.dataset.platform || 'Instagram';
+        const modal = document.getElementById('enhancedContentModal');
 
         if (!title || !date || !time) {
             this.showToast('Please fill in all required fields', 'error');
@@ -1272,7 +1300,14 @@ class ContentFlowApp {
             color: this.getPlatformColor(selectedPlatform)
         };
 
-        this.addContent(contentData);
+        if (modal.dataset.editId) {
+            this.updateContent(modal.dataset.editId, contentData);
+            this.showToast('Content updated successfully', 'success');
+        } else {
+            this.addContent(contentData);
+            this.showToast('Content created successfully', 'success');
+        }
+
         this.closeEnhancedModal();
         this.clearEnhancedModalForm();
     }
@@ -1304,6 +1339,8 @@ class ContentFlowApp {
 
     clearEnhancedModalForm() {
         this.populateEnhancedModalWithDefaults();
+        const modal = document.getElementById('enhancedContentModal');
+        if (modal) delete modal.dataset.editId;
     }
 
     handleContentCreation() {
