@@ -192,6 +192,23 @@ html.dark #autoSaveSlider {
     background-color: #f1f5f9 !important;
 }
 
+/* Platform connections in dark mode */
+html.dark .platform-connect-btn {
+    color: #f1f5f9 !important;
+}
+
+html.dark .platform-connect-btn.bg-primary {
+    background-color: #6366f1 !important;
+}
+
+html.dark .platform-connect-btn.bg-red-500 {
+    background-color: #ef4444 !important;
+}
+
+html.dark .platform-connect-btn.bg-gray-400 {
+    background-color: #64748b !important;
+}
+
 html.dark input:focus,
 html.dark textarea:focus,
 html.dark select:focus {

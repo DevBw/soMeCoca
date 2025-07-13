@@ -2303,6 +2303,9 @@ class ContentFlowApp {
         
         // Setup settings toggles
         this.setupSettingsToggles();
+        
+        // Setup platform connections
+        this.setupPlatformConnections();
     }
 
     setupSettingsToggles() {
@@ -2373,6 +2376,99 @@ class ContentFlowApp {
             toggle.classList.add('bg-gray-300');
             slider.classList.remove('right-0.5');
             slider.classList.add('left-0.5');
+        }
+    }
+    
+    setupPlatformConnections() {
+        const platformConnectionsContainer = document.getElementById('platformConnections');
+        
+        if (platformConnectionsContainer) {
+            // Load saved platform connections
+            const savedConnections = JSON.parse(localStorage.getItem('platformConnections') || '{}');
+            
+            // Define available platforms
+            const platforms = [
+                { name: 'Instagram', icon: 'ri-instagram-line', color: 'text-pink-500', bgColor: 'bg-pink-100' },
+                { name: 'Twitter', icon: 'ri-twitter-line', color: 'text-blue-500', bgColor: 'bg-blue-100' },
+                { name: 'YouTube', icon: 'ri-youtube-line', color: 'text-red-500', bgColor: 'bg-red-100' },
+                { name: 'TikTok', icon: 'ri-tiktok-line', color: 'text-black', bgColor: 'bg-gray-100' },
+                { name: 'LinkedIn', icon: 'ri-linkedin-line', color: 'text-blue-600', bgColor: 'bg-blue-100' },
+                { name: 'Facebook', icon: 'ri-facebook-line', color: 'text-blue-600', bgColor: 'bg-blue-100' }
+            ];
+            
+            // Generate platform connection items
+            platformConnectionsContainer.innerHTML = platforms.map(platform => {
+                const isConnected = savedConnections[platform.name] || false;
+                const connectionStatus = isConnected ? 'Connected' : 'Not Connected';
+                const statusColor = isConnected ? 'text-green-600' : 'text-gray-500';
+                const buttonText = isConnected ? 'Disconnect' : 'Connect';
+                const buttonClass = isConnected ? 'bg-red-500 hover:bg-red-600' : 'bg-primary hover:bg-primary/90';
+                
+                return `
+                    <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 ${platform.bgColor} rounded-full flex items-center justify-center">
+                                <i class="${platform.icon} ${platform.color} text-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-medium text-gray-900">${platform.name}</h5>
+                                <p class="text-sm ${statusColor}">${connectionStatus}</p>
+                            </div>
+                        </div>
+                        <button 
+                            class="platform-connect-btn px-4 py-2 text-white rounded-lg transition-colors ${buttonClass}"
+                            data-platform="${platform.name}"
+                        >
+                            ${buttonText}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add event listeners to connect/disconnect buttons
+            const connectButtons = platformConnectionsContainer.querySelectorAll('.platform-connect-btn');
+            connectButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const platform = button.dataset.platform;
+                    const currentConnections = JSON.parse(localStorage.getItem('platformConnections') || '{}');
+                    const isCurrentlyConnected = currentConnections[platform] || false;
+                    
+                    if (isCurrentlyConnected) {
+                        // Disconnect
+                        delete currentConnections[platform];
+                        this.showToast(`${platform} disconnected successfully`, 'success');
+                    } else {
+                        // Connect - simulate OAuth flow
+                        this.simulatePlatformConnection(platform, () => {
+                            currentConnections[platform] = true;
+                            localStorage.setItem('platformConnections', JSON.stringify(currentConnections));
+                            this.showToast(`${platform} connected successfully`, 'success');
+                            this.setupPlatformConnections(); // Refresh the display
+                        });
+                        return; // Don't update localStorage yet, wait for OAuth
+                    }
+                    
+                    localStorage.setItem('platformConnections', JSON.stringify(currentConnections));
+                    this.setupPlatformConnections(); // Refresh the display
+                });
+            });
+        }
+    }
+    
+    simulatePlatformConnection(platform, onSuccess) {
+        // Show loading state
+        const button = document.querySelector(`[data-platform="${platform}"]`);
+        if (button) {
+            const originalText = button.textContent;
+            button.textContent = 'Connecting...';
+            button.disabled = true;
+            button.classList.remove('bg-primary', 'hover:bg-primary/90');
+            button.classList.add('bg-gray-400');
+            
+            // Simulate OAuth flow delay
+            setTimeout(() => {
+                onSuccess();
+            }, 2000);
         }
     }
     
