@@ -15,6 +15,70 @@ class ContentFlowApp {
         this.updateDateDisplay();
         this.setupPlatformSelection();
         this.setupCharacterCounters();
+        
+        // Additional setup for enhanced functionality
+        this.setupEnhancedFeatures();
+    }
+
+    setupEnhancedFeatures() {
+        // Setup notification button
+        const notificationBtn = document.querySelector('.w-8.h-8.flex.items-center.justify-center.rounded-full.bg-gray-100');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', () => {
+                this.showToast('Notifications coming soon!', 'info');
+            });
+        }
+
+        // Setup profile button
+        const profileBtn = document.querySelector('.w-8.h-8.bg-gray-300.rounded-full');
+        if (profileBtn) {
+            profileBtn.addEventListener('click', () => {
+                this.showToast('Profile settings coming soon!', 'info');
+            });
+        }
+
+        // Setup all navigation buttons with proper selectors
+        this.setupNavigationButtons();
+        
+        // Setup keyboard shortcuts
+        this.setupKeyboardShortcuts();
+        
+        // Setup additional interactive elements
+        this.setupAdditionalInteractions();
+    }
+
+    setupNavigationButtons() {
+        // Previous/Next week buttons
+        const prevBtn = document.querySelector('button:has(.ri-arrow-left-s-line)');
+        const nextBtn = document.querySelector('button:has(.ri-arrow-right-s-line)');
+        const todayBtn = document.querySelector('button:has(.ri-calendar-line)');
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                this.currentDate.setDate(this.currentDate.getDate() - 7);
+                this.renderCalendar();
+                this.updateDateDisplay();
+                this.showToast('Previous week', 'info');
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                this.currentDate.setDate(this.currentDate.getDate() + 7);
+                this.renderCalendar();
+                this.updateDateDisplay();
+                this.showToast('Next week', 'info');
+            });
+        }
+
+        if (todayBtn) {
+            todayBtn.addEventListener('click', () => {
+                this.currentDate = new Date();
+                this.renderCalendar();
+                this.updateDateDisplay();
+                this.showToast('Jumped to today', 'info');
+            });
+        }
     }
 
     // Data Management
@@ -1066,6 +1130,76 @@ class ContentFlowApp {
         setTimeout(() => {
             toast.remove();
         }, 3000);
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + N: New content
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                this.openEnhancedModal();
+            }
+            
+            // Escape: Close modals
+            if (e.key === 'Escape') {
+                this.closeEnhancedModal();
+            }
+            
+            // Arrow keys for navigation
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                this.currentDate.setDate(this.currentDate.getDate() - 7);
+                this.renderCalendar();
+                this.updateDateDisplay();
+            }
+            
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                this.currentDate.setDate(this.currentDate.getDate() + 7);
+                this.renderCalendar();
+                this.updateDateDisplay();
+            }
+            
+            // T: Jump to today
+            if (e.key === 't' || e.key === 'T') {
+                e.preventDefault();
+                this.currentDate = new Date();
+                this.renderCalendar();
+                this.updateDateDisplay();
+                this.showToast('Jumped to today', 'info');
+            }
+        });
+    }
+
+    setupAdditionalInteractions() {
+        // Add hover effects to all interactive elements
+        const interactiveElements = document.querySelectorAll('button, .calendar-cell, [data-content-id], .platform-option, .filter-chip');
+        
+        interactiveElements.forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                if (!element.classList.contains('calendar-cell')) {
+                    element.style.transform = 'scale(1.02)';
+                    element.style.transition = 'transform 0.2s ease';
+                }
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                if (!element.classList.contains('calendar-cell')) {
+                    element.style.transform = 'scale(1)';
+                }
+            });
+        });
+
+        // Add click feedback to all buttons
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                button.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
     }
 }
 
