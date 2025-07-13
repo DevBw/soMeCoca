@@ -1,0 +1,150 @@
+<!-- Enhanced Content Creation Modal -->
+<div id="enhancedContentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center hidden">
+  <div class="bg-white rounded-lg w-[400px] mx-auto mt-10 overflow-hidden max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center p-4 border-b bg-gray-50">
+      <h3 class="font-semibold text-lg">Create New Content</h3>
+      <button id="closeEnhancedModalBtn" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 cursor-pointer">
+        <i class="ri-close-line ri-lg"></i>
+      </button>
+    </div>
+    
+    <div class="p-6">
+      <!-- Platform Selection -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-3 text-gray-700">Platform</label>
+        <div class="grid grid-cols-3 gap-3">
+          <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Instagram">
+            <i class="ri-instagram-line ri-xl text-pink-500 mb-2"></i>
+            <span class="text-xs font-medium">Instagram</span>
+          </button>
+          <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Twitter">
+            <i class="ri-twitter-line ri-xl text-blue-500 mb-2"></i>
+            <span class="text-xs font-medium">Twitter</span>
+          </button>
+          <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="YouTube">
+            <i class="ri-youtube-line ri-xl text-red-500 mb-2"></i>
+            <span class="text-xs font-medium">YouTube</span>
+          </button>
+          <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="TikTok">
+            <i class="ri-tiktok-line ri-xl text-purple-500 mb-2"></i>
+            <span class="text-xs font-medium">TikTok</span>
+          </button>
+          <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Blog">
+            <i class="ri-article-line ri-xl text-green-500 mb-2"></i>
+            <span class="text-xs font-medium">Blog</span>
+          </button>
+          <button class="platform-option flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors" data-platform="Newsletter">
+            <i class="ri-mail-line ri-xl text-indigo-500 mb-2"></i>
+            <span class="text-xs font-medium">Newsletter</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Type -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-3 text-gray-700">Content Type</label>
+        <select id="contentTypeSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+          <option value="Post">Post</option>
+          <option value="Story">Story</option>
+          <option value="Video">Video</option>
+          <option value="Article">Article</option>
+          <option value="Email">Email</option>
+          <option value="Reel">Reel</option>
+        </select>
+      </div>
+
+      <!-- Title -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2 text-gray-700">Title *</label>
+        <input
+          id="enhancedContentTitle"
+          type="text"
+          class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          placeholder="Enter content title"
+          maxlength="100"
+        />
+        <div class="text-xs text-gray-500 mt-1 text-right">
+          <span id="titleCharCount">0</span>/100
+        </div>
+      </div>
+
+      <!-- Date & Time -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2 text-gray-700">Schedule *</label>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">Date</label>
+            <input
+              id="enhancedContentDate"
+              type="date"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">Time</label>
+            <input
+              id="enhancedContentTime"
+              type="time"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2 text-gray-700">Status</label>
+        <select id="contentStatusSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+          <option value="Draft">Draft</option>
+          <option value="Scheduled">Scheduled</option>
+          <option value="Ready">Ready</option>
+          <option value="Published">Published</option>
+        </select>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2 text-gray-700">Description</label>
+        <textarea
+          id="enhancedContentDescription"
+          class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-24 resize-none"
+          placeholder="Enter content description..."
+          maxlength="500"
+        ></textarea>
+        <div class="text-xs text-gray-500 mt-1 text-right">
+          <span id="descCharCount">0</span>/500
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2 text-gray-700">Tags</label>
+        <div class="flex flex-wrap gap-2 p-3 border border-gray-300 rounded-lg min-h-[44px] focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent">
+          <div id="tagsContainer" class="flex flex-wrap gap-2"></div>
+          <input
+            id="tagInput"
+            type="text"
+            class="flex-1 min-w-[100px] outline-none text-sm"
+            placeholder="Add tags..."
+          />
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex space-x-3">
+        <button
+          id="saveAsDraftBtn"
+          class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          Save as Draft
+        </button>
+        <button
+          id="createEnhancedContentBtn"
+          class="flex-1 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors"
+        >
+          Create Content
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

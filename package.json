@@ -1,0 +1,30 @@
+{
+  "name": "content-flow",
+  "version": "1.0.0",
+  "description": "A modern, responsive content management application for social media creators and marketers",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000",
+    "serve": "python -m http.server 8000"
+  },
+  "keywords": [
+    "content-management",
+    "social-media",
+    "calendar",
+    "scheduling",
+    "tailwindcss",
+    "responsive",
+    "web-app"
+  ],
+  "author": "Content Flow Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/content-flow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/content-flow/issues"
+  },
+  "homepage": "https://github.com/yourusername/content-flow#readme"
+} 
