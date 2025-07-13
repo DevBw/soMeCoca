@@ -539,14 +539,16 @@ class ContentFlowApp {
 
     getPlatformIcon(platform) {
         const icons = {
-            'Instagram': 'ri-instagram-line',
-            'Twitter': 'ri-twitter-line',
-            'YouTube': 'ri-youtube-line',
-            'TikTok': 'ri-tiktok-line',
-            'Blog': 'ri-article-line',
-            'Newsletter': 'ri-mail-line'
+            'Instagram': 'ri-instagram-fill',
+            'Twitter': 'ri-twitter-x-fill',
+            'YouTube': 'ri-youtube-fill',
+            'TikTok': 'ri-tiktok-fill',
+            'LinkedIn': 'ri-linkedin-box-fill',
+            'Facebook': 'ri-facebook-box-fill',
+            'Blog': 'ri-article-fill',
+            'Newsletter': 'ri-mail-fill'
         };
-        return icons[platform] || 'ri-file-line';
+        return icons[platform] || 'ri-file-fill';
     }
 
     getStatusColor(status) {
@@ -2367,14 +2369,14 @@ class ContentFlowApp {
             // Load saved platform connections
             const savedConnections = JSON.parse(localStorage.getItem('platformConnections') || '{}');
             
-            // Define available platforms
+            // Define available platforms with latest icons
             const platforms = [
-                { name: 'Instagram', icon: 'ri-instagram-line', color: 'text-pink-500', bgColor: 'bg-pink-100' },
-                { name: 'Twitter', icon: 'ri-twitter-line', color: 'text-blue-500', bgColor: 'bg-blue-100' },
-                { name: 'YouTube', icon: 'ri-youtube-line', color: 'text-red-500', bgColor: 'bg-red-100' },
-                { name: 'TikTok', icon: 'ri-tiktok-line', color: 'text-black', bgColor: 'bg-gray-100' },
-                { name: 'LinkedIn', icon: 'ri-linkedin-line', color: 'text-blue-600', bgColor: 'bg-blue-100' },
-                { name: 'Facebook', icon: 'ri-facebook-line', color: 'text-blue-600', bgColor: 'bg-blue-100' }
+                { name: 'Instagram', icon: 'ri-instagram-fill', color: 'text-pink-500', bgColor: 'bg-pink-100' },
+                { name: 'Twitter', icon: 'ri-twitter-x-fill', color: 'text-black', bgColor: 'bg-gray-100' },
+                { name: 'YouTube', icon: 'ri-youtube-fill', color: 'text-red-500', bgColor: 'bg-red-100' },
+                { name: 'TikTok', icon: 'ri-tiktok-fill', color: 'text-black', bgColor: 'bg-gray-100' },
+                { name: 'LinkedIn', icon: 'ri-linkedin-box-fill', color: 'text-blue-600', bgColor: 'bg-blue-100' },
+                { name: 'Facebook', icon: 'ri-facebook-box-fill', color: 'text-blue-600', bgColor: 'bg-blue-100' }
             ];
             
             // Generate platform connection items

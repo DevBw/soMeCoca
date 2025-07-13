@@ -597,14 +597,16 @@ class ContentFlowAdvancedFeatures {
 
     getPlatformIcon(platform) {
         const icons = {
-            'Instagram': 'ri-instagram-line',
-            'Twitter': 'ri-twitter-line',
-            'YouTube': 'ri-youtube-line',
-            'TikTok': 'ri-tiktok-line',
-            'Blog': 'ri-article-line',
-            'Newsletter': 'ri-mail-line'
+            'Instagram': 'ri-instagram-fill',
+            'Twitter': 'ri-twitter-x-fill',
+            'YouTube': 'ri-youtube-fill',
+            'TikTok': 'ri-tiktok-fill',
+            'LinkedIn': 'ri-linkedin-box-fill',
+            'Facebook': 'ri-facebook-box-fill',
+            'Blog': 'ri-article-fill',
+            'Newsletter': 'ri-mail-fill'
         };
-        return icons[platform] || 'ri-file-line';
+        return icons[platform] || 'ri-file-fill';
     }
 
     loadTemplates() {
