@@ -4,19 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Flow</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { 
-                        primary: "#6366f1", 
-                        secondary: "#a855f7" 
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="./dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
     <style>
         body {
@@ -43,6 +31,41 @@
             background-color: #6366f1;
             color: white;
         }
+        .nav-button.active {
+            color: #6366f1;
+        }
+        .nav-button:not(.active) {
+            color: #6b7280;
+        }
+        .dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        .drag-over {
+            background-color: #f3f4f6;
+            border: 2px dashed #6366f1;
+        }
+        .selected {
+            background-color: #e0e7ff;
+            border-color: #6366f1;
+        }
+        .dark-mode {
+            background-color: #1f2937;
+            color: #f9fafb;
+        }
+        .dark-mode .bg-white {
+            background-color: #374151;
+            color: #f9fafb;
+        }
+        .dark-mode .border-gray-200 {
+            border-color: #4b5563;
+        }
+        .dark-mode .text-gray-600 {
+            color: #d1d5db;
+        }
+        .dark-mode .text-gray-500 {
+            color: #9ca3af;
+        }
     </style>
 </head>
 <body>
@@ -52,10 +75,95 @@
             <div class="flex justify-between items-center">
                 <h1 class="text-xl font-bold text-primary">Content Flow</h1>
                 <div class="flex items-center space-x-4">
-                    <button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
-                        <i class="ri-notification-3-line"></i>
-                    </button>
-                    <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+                    <!-- Export Dropdown -->
+                    <div class="relative">
+                        <button id="exportDropdownBtn" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <i class="ri-download-line"></i>
+                        </button>
+                        <div id="exportDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
+                            <div class="py-2">
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100" onclick="window.contentFlowApp.exportToCSV()">
+                                    <i class="ri-file-text-line mr-2"></i>Export to CSV
+                                </button>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100" onclick="window.contentFlowApp.exportToPDF()">
+                                    <i class="ri-file-pdf-line mr-2"></i>Export to PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Templates Dropdown -->
+                    <div class="relative">
+                        <button id="templatesDropdownBtn" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <i class="ri-layout-line"></i>
+                        </button>
+                        <div id="templatesDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
+                            <div class="p-3 border-b border-gray-200">
+                                <h4 class="text-sm font-medium text-gray-700">Content Templates</h4>
+                            </div>
+                            <div id="templatesList" class="py-2 max-h-48 overflow-y-auto">
+                                <!-- Templates will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notifications Dropdown -->
+                    <div class="relative">
+                        <button id="notificationsBtn" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors relative">
+                            <i class="ri-notification-3-line"></i>
+                            <span id="notificationBadge" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center hidden">3</span>
+                        </button>
+                        <div id="notificationsDropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50 max-h-96 overflow-y-auto">
+                            <div class="p-3 border-b border-gray-200">
+                                <h4 class="text-sm font-medium text-gray-700">Notifications</h4>
+                            </div>
+                            <div id="notificationsList" class="py-2">
+                                <!-- Notifications will be populated by JavaScript -->
+                            </div>
+                            <div class="p-3 border-t border-gray-200">
+                                <button id="markAllReadBtn" class="text-xs text-primary hover:underline">Mark all as read</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Dropdown -->
+                    <div class="relative">
+                        <button id="profileBtn" class="w-8 h-8 bg-gray-300 rounded-full hover:bg-gray-400 transition-colors flex items-center justify-center">
+                            <i class="ri-user-line text-gray-600"></i>
+                        </button>
+                        <div id="profileDropdown" class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
+                            <div class="p-4 border-b border-gray-200">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                                        <i class="ri-user-line text-gray-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">John Doe</h4>
+                                        <p class="text-sm text-gray-500">Content Creator</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="py-2">
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center space-x-3" id="profileSettingsBtn">
+                                    <i class="ri-user-settings-line text-gray-500"></i>
+                                    <span>Profile Settings</span>
+                                </button>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center space-x-3" id="accountSettingsBtn">
+                                    <i class="ri-settings-3-line text-gray-500"></i>
+                                    <span>Account Settings</span>
+                                </button>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center space-x-3" id="helpCenterBtn">
+                                    <i class="ri-question-line text-gray-500"></i>
+                                    <span>Help & Support</span>
+                                </button>
+                                <hr class="my-2">
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center space-x-3 text-red-600" id="logoutBtn">
+                                    <i class="ri-logout-box-line"></i>
+                                    <span>Sign Out</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -99,35 +207,288 @@
                 <button class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium whitespace-nowrap">TikTok</button>
                 <button class="filter-chip px-3 py-1 text-xs rounded-full bg-gray-100 font-medium whitespace-nowrap">Blog</button>
             </div>
+
+            <!-- Bulk Actions -->
+            <div id="bulkActions" class="hidden mt-3 p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-600">
+                            <span id="selectedCount">0</span> items selected
+                        </span>
+                        <button id="selectAllBtn" class="text-xs text-primary hover:underline">Select All</button>
+                        <button id="deselectAllBtn" class="text-xs text-gray-500 hover:underline">Deselect All</button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <select id="bulkActionSelect" class="text-xs border border-gray-300 rounded px-2 py-1">
+                            <option value="">Choose action...</option>
+                            <option value="delete">Delete Selected</option>
+                            <option value="duplicate">Duplicate</option>
+                            <option value="change-status">Change Status</option>
+                        </select>
+                        <button id="applyBulkActionBtn" class="text-xs bg-primary text-white px-3 py-1 rounded hover:bg-primary/90">Apply</button>
+                        <button id="deleteSelectedBtn" class="text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Delete</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
     <!-- Main Content -->
     <main class="max-w-6xl mx-auto px-4 py-6 pb-24">
         <!-- Calendar Section -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-            <!-- Weekday Headers -->
-            <div class="grid grid-cols-7 gap-1 mb-2">
-                <div class="text-center text-xs font-medium text-gray-500 p-2">Mon</div>
-                <div class="text-center text-xs font-medium text-gray-500 p-2">Tue</div>
-                <div class="text-center text-xs font-medium text-gray-500 p-2">Wed</div>
-                <div class="text-center text-xs font-medium text-gray-500 p-2">Thu</div>
-                <div class="text-center text-xs font-medium text-gray-500 p-2">Fri</div>
-                <div class="text-center text-xs font-medium text-gray-500 p-2">Sat</div>
-                <div class="text-center text-xs font-medium text-gray-500 p-2">Sun</div>
+        <div id="calendarSection" class="section-content">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                <!-- Weekday Headers -->
+                <div class="grid grid-cols-7 gap-1 mb-2">
+                    <div class="text-center text-xs font-medium text-gray-500 p-2">Mon</div>
+                    <div class="text-center text-xs font-medium text-gray-500 p-2">Tue</div>
+                    <div class="text-center text-xs font-medium text-gray-500 p-2">Wed</div>
+                    <div class="text-center text-xs font-medium text-gray-500 p-2">Thu</div>
+                    <div class="text-center text-xs font-medium text-gray-500 p-2">Fri</div>
+                    <div class="text-center text-xs font-medium text-gray-500 p-2">Sat</div>
+                    <div class="text-center text-xs font-medium text-gray-500 p-2">Sun</div>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="grid grid-cols-7 gap-1" id="calendarGrid">
+                    <!-- Calendar cells will be generated by JavaScript -->
+                </div>
             </div>
 
-            <!-- Calendar Grid -->
-            <div class="grid grid-cols-7 gap-1" id="calendarGrid">
-                <!-- Calendar cells will be generated by JavaScript -->
+            <!-- Upcoming Content Section -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Upcoming Content</h3>
+                <div id="upcomingContent">
+                    <!-- Content cards will be generated by JavaScript -->
+                </div>
             </div>
         </div>
 
-        <!-- Upcoming Content Section -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-            <h3 class="text-lg font-semibold mb-4">Upcoming Content</h3>
-            <div id="upcomingContent">
-                <!-- Content cards will be generated by JavaScript -->
+        <!-- Library Section -->
+        <div id="librarySection" class="section-content hidden">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Content Library</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="libraryContent">
+                    <!-- Library content will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analyticsSection" class="section-content hidden">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Analytics Dashboard</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm opacity-90">Total Posts</p>
+                                <p class="text-2xl font-bold">1,234</p>
+                            </div>
+                            <i class="ri-file-text-line text-2xl opacity-80"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm opacity-90">Engagement</p>
+                                <p class="text-2xl font-bold">89.2%</p>
+                            </div>
+                            <i class="ri-heart-line text-2xl opacity-80"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm opacity-90">Reach</p>
+                                <p class="text-2xl font-bold">45.6K</p>
+                            </div>
+                            <i class="ri-eye-line text-2xl opacity-80"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm opacity-90">Growth</p>
+                                <p class="text-2xl font-bold">+12.3%</p>
+                            </div>
+                            <i class="ri-trending-up-line text-2xl opacity-80"></i>
+                        </div>
+                    </div>
+                </div>
+                <div id="analyticsCharts">
+                    <!-- Charts will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settingsSection" class="section-content hidden">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Settings</h3>
+                <div class="space-y-6">
+                    <div class="border-b border-gray-200 pb-4">
+                        <h4 class="text-md font-medium mb-3">Account Settings</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Email Notifications</span>
+                                <button class="w-12 h-6 bg-primary rounded-full relative">
+                                    <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 transition-transform"></div>
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Push Notifications</span>
+                                <button class="w-12 h-6 bg-gray-300 rounded-full relative">
+                                    <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-b border-gray-200 pb-4">
+                        <h4 class="text-md font-medium mb-3">Platform Connections</h4>
+                        <div class="space-y-3" id="platformConnections">
+                            <!-- Platform connections will be generated by JavaScript -->
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-md font-medium mb-3">App Preferences</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Dark Mode</span>
+                                <button class="w-12 h-6 bg-gray-300 rounded-full relative">
+                                    <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Auto-save Drafts</span>
+                                <button class="w-12 h-6 bg-primary rounded-full relative">
+                                    <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 transition-transform"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profileSection" class="section-content hidden">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <div class="flex items-center space-x-6 mb-8">
+                    <div class="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
+                        <i class="ri-user-line text-gray-600 text-3xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900">John Doe</h3>
+                        <p class="text-gray-600">Content Creator</p>
+                        <p class="text-sm text-gray-500">Member since January 2024</p>
+                    </div>
+                    <button class="ml-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                        Edit Profile
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Personal Information -->
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-semibold text-gray-900">Personal Information</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <input type="text" value="John Doe" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" value="john.doe@example.com" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                                <textarea class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-24" placeholder="Tell us about yourself...">Content creator and social media strategist with 5+ years of experience in digital marketing.</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                                <input type="url" value="https://johndoe.com" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Statistics -->
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-semibold text-gray-900">Account Statistics</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Total Content</p>
+                                        <p class="text-2xl font-bold text-gray-900">1,234</p>
+                                    </div>
+                                    <i class="ri-file-text-line text-2xl text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Published</p>
+                                        <p class="text-2xl font-bold text-gray-900">987</p>
+                                    </div>
+                                    <i class="ri-check-line text-2xl text-green-500"></i>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Drafts</p>
+                                        <p class="text-2xl font-bold text-gray-900">156</p>
+                                    </div>
+                                    <i class="ri-edit-line text-2xl text-orange-500"></i>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Scheduled</p>
+                                        <p class="text-2xl font-bold text-gray-900">91</p>
+                                    </div>
+                                    <i class="ri-time-line text-2xl text-blue-500"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="mt-8">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="ri-check-line text-green-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">Content published on Instagram</p>
+                                <p class="text-xs text-gray-500">2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="ri-add-line text-blue-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">New content created</p>
+                                <p class="text-xs text-gray-500">1 day ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="ri-settings-line text-purple-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">Profile settings updated</p>
+                                <p class="text-xs text-gray-500">3 days ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -139,23 +500,27 @@
 
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-        <div class="grid grid-cols-4 gap-1 p-2">
-            <a href="#" class="flex flex-col items-center justify-center py-2 text-primary">
+        <div class="grid grid-cols-5 gap-1 p-2">
+            <button class="nav-button active flex flex-col items-center justify-center py-2 text-primary" data-section="calendar">
                 <i class="ri-calendar-line text-lg"></i>
                 <span class="text-xs mt-1">Calendar</span>
-            </a>
-            <a href="#" class="flex flex-col items-center justify-center py-2 text-gray-500">
+            </button>
+            <button class="nav-button flex flex-col items-center justify-center py-2 text-gray-500" data-section="library">
                 <i class="ri-folder-line text-lg"></i>
                 <span class="text-xs mt-1">Library</span>
-            </a>
-            <a href="#" class="flex flex-col items-center justify-center py-2 text-gray-500">
+            </button>
+            <button class="nav-button flex flex-col items-center justify-center py-2 text-gray-500" data-section="analytics">
                 <i class="ri-bar-chart-line text-lg"></i>
                 <span class="text-xs mt-1">Analytics</span>
-            </a>
-            <a href="#" class="flex flex-col items-center justify-center py-2 text-gray-500">
+            </button>
+            <button class="nav-button flex flex-col items-center justify-center py-2 text-gray-500" data-section="profile">
+                <i class="ri-user-line text-lg"></i>
+                <span class="text-xs mt-1">Profile</span>
+            </button>
+            <button class="nav-button flex flex-col items-center justify-center py-2 text-gray-500" data-section="settings">
                 <i class="ri-settings-3-line text-lg"></i>
                 <span class="text-xs mt-1">Settings</span>
-            </a>
+            </button>
         </div>
     </nav>
 
@@ -198,6 +563,19 @@
                             <i class="ri-mail-line text-xl text-indigo-500 mb-2"></i>
                             <span class="text-xs font-medium">Newsletter</span>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Template Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-3 text-gray-700">Template (Optional)</label>
+                    <select id="templateSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="">Choose a template...</option>
+                        <!-- Templates will be populated by JavaScript -->
+                    </select>
+                    <div class="flex justify-between items-center mt-2">
+                        <button type="button" id="applyTemplateBtn" class="text-xs text-primary hover:underline">Apply Template</button>
+                        <button type="button" id="saveAsTemplateBtn" class="text-xs text-gray-500 hover:underline">Save as Template</button>
                     </div>
                 </div>
 

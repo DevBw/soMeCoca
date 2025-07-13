@@ -1,23 +1,28 @@
 // Content Flow App - Main JavaScript
 class ContentFlowApp {
     constructor() {
-        this.content = this.loadContent();
         this.currentDate = new Date();
         this.currentView = 'week';
         this.activeFilters = ['All'];
+        this.content = [];
+        this.templates = [];
+        this.selectedItems = new Set();
+        this.isDragMode = false;
+        this.draggedItem = null;
+        
         this.init();
     }
 
     init() {
-        this.setupEventListeners();
+        this.loadContent();
+        this.loadTemplates();
         this.renderCalendar();
         this.renderUpcomingContent();
         this.updateDateDisplay();
-        this.setupPlatformSelection();
-        this.setupCharacterCounters();
-        
-        // Additional setup for enhanced functionality
-        this.setupEnhancedFeatures();
+        this.setupEventListeners();
+        this.setupDragAndDrop();
+        this.setupBulkActions();
+        this.setupDataPersistence();
     }
 
     setupEnhancedFeatures() {
@@ -112,13 +117,27 @@ class ContentFlowApp {
     loadContent() {
         const saved = localStorage.getItem('contentFlowData');
         if (saved) {
-            return JSON.parse(saved);
+            this.content = JSON.parse(saved);
+        } else {
+            this.content = this.getDefaultContent();
         }
-        return this.getDefaultContent();
     }
 
     saveContent() {
         localStorage.setItem('contentFlowData', JSON.stringify(this.content));
+    }
+
+    loadTemplates() {
+        const savedTemplates = localStorage.getItem('contentFlowTemplates');
+        if (savedTemplates) {
+            this.templates = JSON.parse(savedTemplates);
+        } else {
+            this.templates = this.getDefaultTemplates();
+        }
+    }
+
+    saveTemplates() {
+        localStorage.setItem('contentFlowTemplates', JSON.stringify(this.templates));
     }
 
     getDefaultContent() {
@@ -210,6 +229,44 @@ class ContentFlowApp {
                 status: 'Draft',
                 description: 'Main YouTube video for the week.',
                 color: 'red'
+            }
+        ];
+    }
+
+    getDefaultTemplates() {
+        return [
+            {
+                id: '1',
+                title: 'Basic Post Template',
+                platform: 'All',
+                type: 'Post',
+                content: {
+                    title: 'New Product Launch',
+                    description: 'Announcing our latest product line. Stay tuned for more details!',
+                    hashtags: '#NewProduct #Launch #Fashion #Trends'
+                }
+            },
+            {
+                id: '2',
+                title: 'Instagram Story Template',
+                platform: 'Instagram',
+                type: 'Story',
+                content: {
+                    title: 'Daily Highlight',
+                    description: 'Share a daily highlight from our studio.',
+                    hashtags: '#DailyLife #Studio #Fashion #BehindTheScenes'
+                }
+            },
+            {
+                id: '3',
+                title: 'Twitter Post Template',
+                platform: 'Twitter',
+                type: 'Post',
+                content: {
+                    title: 'Weekly Update',
+                    description: 'Weekly update on our latest content and upcoming plans.',
+                    hashtags: '#WeeklyUpdate #Content #Strategy #SocialMedia'
+                }
             }
         ];
     }
@@ -362,25 +419,45 @@ class ContentFlowApp {
         const platformIcon = this.getPlatformIcon(item.platform);
         const platformColor = this.getPlatformColor(item.platform);
         const statusColor = this.getStatusColor(item.status);
-        const formattedDate = this.formatContentDate(item.date, item.time);
+        const isSelected = this.selectedItems.has(item.id);
 
         return `
-            <div class="bg-white shadow-sm rounded-lg p-3 cursor-pointer" data-content-id="${item.id}">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-10 h-10 flex items-center justify-center ${platformColor} rounded-lg">
-                            <i class="${platformIcon} ri-lg ${this.getPlatformTextColor(item.platform)}"></i>
+            <div class="content-card bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer ${isSelected ? 'selected' : ''}" 
+                 data-content-id="${item.id}" 
+                 draggable="true">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" class="select-checkbox w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary" ${isSelected ? 'checked' : ''}>
+                        <div class="w-8 h-8 flex items-center justify-center ${platformColor} rounded-lg">
+                            <i class="${platformIcon} text-sm ${this.getPlatformTextColor(item.platform)}"></i>
                         </div>
                         <div>
-                            <h4 class="text-sm font-medium">${item.title}</h4>
-                            <p class="text-xs text-gray-500">${item.platform} • ${formattedDate}</p>
+                            <h4 class="font-medium text-gray-900">${item.title}</h4>
+                            <p class="text-sm text-gray-500">${item.platform} • ${item.type}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
                         <span class="text-xs font-medium px-2 py-1 ${statusColor} rounded-full">${item.status}</span>
-                        <button class="content-edit-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100">
+                        <button class="share-content-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100" title="Share" onclick="window.contentFlowApp.shareContent('${item.id}')">
+                            <i class="ri-share-line text-xs text-gray-500"></i>
+                        </button>
+                        <button class="create-template-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100" title="Save as Template" onclick="window.contentFlowApp.createTemplateFromContent('${item.id}')">
+                            <i class="ri-save-line text-xs text-gray-500"></i>
+                        </button>
+                        <button class="edit-content-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100" title="Edit">
                             <i class="ri-edit-line text-xs text-gray-500"></i>
                         </button>
+                        <button class="delete-content-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-red-100" title="Delete">
+                            <i class="ri-delete-bin-line text-xs text-red-500"></i>
+                        </button>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 mb-3">${item.description}</p>
+                <div class="flex justify-between items-center text-xs text-gray-500">
+                    <span>${this.formatContentDate(item.date, item.time)}</span>
+                    <div class="flex space-x-2">
+                        <span class="px-2 py-1 bg-gray-100 rounded">${item.platform}</span>
+                        <span class="px-2 py-1 bg-gray-100 rounded">${item.type}</span>
                     </div>
                 </div>
             </div>
@@ -511,10 +588,17 @@ class ContentFlowApp {
     // Event Listeners
     setupEventListeners() {
         this.setupViewToggle();
+        this.setupSectionNavigation();
         this.setupFilterChips();
         this.setupDateNavigation();
         this.setupModal();
         this.setupBottomNavigation();
+        this.setupExportDropdowns();
+        this.setupTemplateSelection();
+        this.setupBulkActionUI();
+        this.setupDarkMode();
+        this.setupNotifications();
+        this.setupProfileDropdown();
     }
 
     setupViewToggle() {
@@ -529,6 +613,193 @@ class ContentFlowApp {
                 this.switchView(this.currentView);
             });
         });
+    }
+
+    setupSectionNavigation() {
+        const navButtons = document.querySelectorAll('.nav-button');
+        
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                navButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Get the section from data attribute
+                const section = button.dataset.section;
+                this.switchSection(section);
+            });
+        });
+    }
+
+    switchSection(section) {
+        // Hide all sections
+        const sections = document.querySelectorAll('.section-content');
+        sections.forEach(s => s.classList.add('hidden'));
+        
+        // Show the selected section
+        const targetSection = document.getElementById(`${section}Section`);
+        if (targetSection) {
+            targetSection.classList.remove('hidden');
+        }
+        
+        // Update navigation button colors
+        const navButtons = document.querySelectorAll('.nav-button');
+        navButtons.forEach(btn => {
+            if (btn.dataset.section === section) {
+                btn.classList.add('text-primary');
+                btn.classList.remove('text-gray-500');
+            } else {
+                btn.classList.remove('text-primary');
+                btn.classList.add('text-gray-500');
+            }
+        });
+        
+        // Load section-specific content
+        this.loadSectionContent(section);
+    }
+
+    loadSectionContent(section) {
+        switch(section) {
+            case 'library':
+                this.renderLibraryContent();
+                break;
+            case 'analytics':
+                this.renderAnalyticsContent();
+                break;
+            case 'settings':
+                this.renderSettingsContent();
+                break;
+            case 'profile':
+                this.renderProfileContent();
+                break;
+            case 'calendar':
+                this.renderCalendar();
+                this.renderUpcomingContent();
+                break;
+        }
+    }
+
+    renderLibraryContent() {
+        const libraryContainer = document.getElementById('libraryContent');
+        if (!libraryContainer) return;
+        
+        // Sample library content
+        const libraryItems = [
+            { id: 1, title: 'Brand Guidelines', type: 'Document', platform: 'All', date: '2025-01-15' },
+            { id: 2, title: 'Product Photos', type: 'Media', platform: 'Instagram', date: '2025-01-10' },
+            { id: 3, title: 'Video Templates', type: 'Template', platform: 'TikTok', date: '2025-01-08' },
+            { id: 4, title: 'Caption Templates', type: 'Text', platform: 'All', date: '2025-01-05' },
+            { id: 5, title: 'Hashtag Sets', type: 'Text', platform: 'Instagram', date: '2025-01-03' },
+            { id: 6, title: 'Analytics Reports', type: 'Document', platform: 'All', date: '2025-01-01' }
+        ];
+        
+        libraryContainer.innerHTML = libraryItems.map(item => `
+            <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <i class="ri-folder-line text-gray-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900">${item.title}</h4>
+                            <p class="text-sm text-gray-500">${item.type} • ${item.platform}</p>
+                        </div>
+                    </div>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                        <i class="ri-more-2-fill text-gray-400"></i>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span>Added ${new Date(item.date).toLocaleDateString()}</span>
+                    <div class="flex space-x-2">
+                        <button class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">View</button>
+                        <button class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">Edit</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    renderAnalyticsContent() {
+        const chartsContainer = document.getElementById('analyticsCharts');
+        if (!chartsContainer) return;
+        
+        // Sample analytics charts content
+        chartsContainer.innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-medium mb-4">Engagement Over Time</h4>
+                    <div class="h-48 bg-gray-50 rounded flex items-center justify-center">
+                        <p class="text-gray-500">Chart placeholder - Engagement data</p>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-medium mb-4">Platform Performance</h4>
+                    <div class="h-48 bg-gray-50 rounded flex items-center justify-center">
+                        <p class="text-gray-500">Chart placeholder - Platform comparison</p>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-medium mb-4">Content Type Analysis</h4>
+                    <div class="h-48 bg-gray-50 rounded flex items-center justify-center">
+                        <p class="text-gray-500">Chart placeholder - Content type breakdown</p>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-medium mb-4">Audience Growth</h4>
+                    <div class="h-48 bg-gray-50 rounded flex items-center justify-center">
+                        <p class="text-gray-500">Chart placeholder - Growth metrics</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderSettingsContent() {
+        const platformConnections = document.getElementById('platformConnections');
+        if (!platformConnections) return;
+        
+        const platforms = [
+            { name: 'Instagram', connected: true, icon: 'ri-instagram-line', color: 'text-pink-500' },
+            { name: 'Twitter', connected: true, icon: 'ri-twitter-line', color: 'text-blue-500' },
+            { name: 'YouTube', connected: false, icon: 'ri-youtube-line', color: 'text-red-500' },
+            { name: 'TikTok', connected: false, icon: 'ri-tiktok-line', color: 'text-purple-500' },
+            { name: 'LinkedIn', connected: true, icon: 'ri-linkedin-box-line', color: 'text-blue-600' },
+            { name: 'Facebook', connected: false, icon: 'ri-facebook-box-line', color: 'text-blue-700' }
+        ];
+        
+        platformConnections.innerHTML = platforms.map(platform => `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="${platform.icon} ${platform.color} text-lg"></i>
+                    <span class="text-sm text-gray-600">${platform.name}</span>
+                </div>
+                <button class="px-3 py-1 text-xs rounded-full ${platform.connected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
+                    ${platform.connected ? 'Connected' : 'Connect'}
+                </button>
+            </div>
+        `).join('');
+    }
+
+    renderProfileContent() {
+        // Profile content is already rendered in HTML, just update any dynamic data
+        const totalContent = this.content.length;
+        const publishedContent = this.content.filter(item => item.status === 'Published').length;
+        const draftContent = this.content.filter(item => item.status === 'Draft').length;
+        const scheduledContent = this.content.filter(item => item.status === 'Scheduled').length;
+
+        // Update statistics if elements exist
+        const totalContentEl = document.querySelector('#profileSection .bg-gray-50:nth-child(1) .text-2xl');
+        const publishedEl = document.querySelector('#profileSection .bg-gray-50:nth-child(2) .text-2xl');
+        const draftsEl = document.querySelector('#profileSection .bg-gray-50:nth-child(3) .text-2xl');
+        const scheduledEl = document.querySelector('#profileSection .bg-gray-50:nth-child(4) .text-2xl');
+
+        if (totalContentEl) totalContentEl.textContent = totalContent;
+        if (publishedEl) publishedEl.textContent = publishedContent;
+        if (draftsEl) draftsEl.textContent = draftContent;
+        if (scheduledEl) scheduledEl.textContent = scheduledContent;
     }
 
     switchView(viewType) {
@@ -1333,6 +1604,883 @@ class ContentFlowApp {
                     button.style.transform = 'scale(1)';
                 }, 150);
             });
+        });
+    }
+
+    setupDragAndDrop() {
+        let draggedItem = null;
+        let currentTarget = null;
+
+        const calendarCells = document.querySelectorAll('.calendar-cell');
+        const contentCards = document.querySelectorAll('[data-content-id]');
+
+        calendarCells.forEach(cell => {
+            cell.addEventListener('dragstart', (e) => {
+                draggedItem = e.target;
+                currentTarget = null;
+                e.dataTransfer.setData('text/plain', e.target.dataset.date);
+                e.dataTransfer.effectAllowed = 'move';
+                e.target.classList.add('dragging');
+            });
+
+            cell.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (e.target.classList.contains('calendar-cell') && e.target.dataset.date !== draggedItem.dataset.date) {
+                    e.target.classList.add('drag-over');
+                }
+            });
+
+            cell.addEventListener('dragleave', (e) => {
+                if (e.target.classList.contains('drag-over')) {
+                    e.target.classList.remove('drag-over');
+                }
+            });
+
+            cell.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (e.target.classList.contains('calendar-cell') && e.target.dataset.date !== draggedItem.dataset.date) {
+                    const date = e.target.dataset.date;
+                    const content = this.content.find(item => item.date === draggedItem.dataset.date);
+                    if (content) {
+                        this.updateContent(content.id, { date: date });
+                        this.renderCalendar();
+                        this.renderUpcomingContent();
+                        this.showToast('Content moved successfully!', 'success');
+                    }
+                }
+                if (e.target.classList.contains('drag-over')) {
+                    e.target.classList.remove('drag-over');
+                }
+                draggedItem.classList.remove('dragging');
+                draggedItem = null;
+            });
+        });
+
+        contentCards.forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                draggedItem = e.target;
+                currentTarget = null;
+                e.dataTransfer.setData('text/plain', e.target.dataset.contentId);
+                e.dataTransfer.effectAllowed = 'move';
+                e.target.classList.add('dragging');
+            });
+
+            card.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (e.target.classList.contains('calendar-cell')) {
+                    e.target.classList.add('drag-over');
+                }
+            });
+
+            card.addEventListener('dragleave', (e) => {
+                if (e.target.classList.contains('drag-over')) {
+                    e.target.classList.remove('drag-over');
+                }
+            });
+
+            card.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (e.target.classList.contains('calendar-cell')) {
+                    const date = e.target.dataset.date;
+                    const content = this.content.find(item => item.id === draggedItem.dataset.contentId);
+                    if (content) {
+                        this.updateContent(content.id, { date: date });
+                        this.renderCalendar();
+                        this.renderUpcomingContent();
+                        this.showToast('Content moved successfully!', 'success');
+                    }
+                }
+                if (e.target.classList.contains('drag-over')) {
+                    e.target.classList.remove('drag-over');
+                }
+                draggedItem.classList.remove('dragging');
+                draggedItem = null;
+            });
+        });
+    }
+
+    setupBulkActions() {
+        const bulkActions = document.getElementById('bulkActions');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const deselectAllBtn = document.getElementById('deselectAllBtn');
+        const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+        const applyBulkActionBtn = document.getElementById('applyBulkActionBtn');
+
+        if (bulkActions) {
+            selectAllBtn.addEventListener('click', () => {
+                this.selectAllContent();
+            });
+            deselectAllBtn.addEventListener('click', () => {
+                this.deselectAllContent();
+            });
+            deleteSelectedBtn.addEventListener('click', () => {
+                this.confirmDeleteSelectedContent();
+            });
+            applyBulkActionBtn.addEventListener('click', () => {
+                this.applyBulkAction();
+            });
+        }
+    }
+
+    selectAllContent() {
+        const contentCards = document.querySelectorAll('[data-content-id]');
+        contentCards.forEach(card => {
+            card.classList.add('selected');
+            this.selectedItems.add(card.dataset.contentId);
+        });
+    }
+
+    deselectAllContent() {
+        const contentCards = document.querySelectorAll('[data-content-id]');
+        contentCards.forEach(card => {
+            card.classList.remove('selected');
+            this.selectedItems.delete(card.dataset.contentId);
+        });
+    }
+
+    confirmDeleteSelectedContent() {
+        if (this.selectedItems.size === 0) {
+            this.showToast('No content selected for deletion.', 'info');
+            return;
+        }
+
+        const confirmModal = document.createElement('div');
+        confirmModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        confirmModal.innerHTML = `
+            <div class="bg-white rounded-lg w-[300px] mx-auto overflow-hidden">
+                <div class="p-4 border-b">
+                    <h3 class="font-semibold text-red-600">Delete Selected Content</h3>
+                </div>
+                <div class="p-4">
+                    <p class="text-gray-600 mb-4">Are you sure you want to delete ${this.selectedItems.size} selected content items?</p>
+                    <div class="flex space-x-3">
+                        <button class="confirm-delete-btn flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                            Delete
+                        </button>
+                        <button class="cancel-delete-btn flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(confirmModal);
+
+        confirmModal.querySelector('.confirm-delete-btn').addEventListener('click', () => {
+            this.deleteSelectedContent();
+            confirmModal.remove();
+        });
+
+        confirmModal.querySelector('.cancel-delete-btn').addEventListener('click', () => {
+            confirmModal.remove();
+        });
+
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                confirmModal.remove();
+            }
+        });
+    }
+
+    deleteSelectedContent() {
+        const initialSelectedCount = this.selectedItems.size;
+        this.content = this.content.filter(item => !this.selectedItems.has(item.id));
+        this.saveContent();
+        this.renderCalendar();
+        this.renderUpcomingContent();
+        this.selectedItems.clear();
+        this.showToast(`Deleted ${initialSelectedCount} content items.`, 'success');
+    }
+
+    applyBulkAction() {
+        if (this.selectedItems.size === 0) {
+            this.showToast('No content selected for bulk action.', 'info');
+            return;
+        }
+
+        const action = document.getElementById('bulkActionSelect')?.value;
+        if (!action) {
+            this.showToast('Please select a bulk action.', 'info');
+            return;
+        }
+
+        if (action === 'delete') {
+            this.confirmDeleteSelectedContent();
+        } else {
+            this.showToast(`Bulk action "${action}" not yet implemented.`, 'info');
+        }
+    }
+
+    setupDataPersistence() {
+        // Auto-save content every 30 seconds
+        setInterval(() => {
+            this.saveContent();
+            this.saveTemplates();
+        }, 30000);
+    }
+
+    // Export functionality
+    exportToCSV() {
+        const headers = ['Title', 'Platform', 'Type', 'Date', 'Time', 'Status', 'Description'];
+        const csvContent = [
+            headers.join(','),
+            ...this.content.map(item => [
+                `"${item.title}"`,
+                item.platform,
+                item.type,
+                item.date,
+                item.time,
+                item.status,
+                `"${item.description}"`
+            ].join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `content-flow-export-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.showToast('Content exported to CSV successfully!', 'success');
+    }
+
+    exportToPDF() {
+        // Create a simple PDF-like export using HTML
+        const printWindow = window.open('', '_blank');
+        const content = this.content.map(item => `
+            <div style="border: 1px solid #ccc; margin: 10px 0; padding: 15px; border-radius: 8px;">
+                <h3 style="margin: 0 0 10px 0; color: #333;">${item.title}</h3>
+                <p style="margin: 5px 0; color: #666;"><strong>Platform:</strong> ${item.platform}</p>
+                <p style="margin: 5px 0; color: #666;"><strong>Type:</strong> ${item.type}</p>
+                <p style="margin: 5px 0; color: #666;"><strong>Date:</strong> ${item.date} at ${item.time}</p>
+                <p style="margin: 5px 0; color: #666;"><strong>Status:</strong> ${item.status}</p>
+                <p style="margin: 5px 0; color: #666;"><strong>Description:</strong> ${item.description}</p>
+            </div>
+        `).join('');
+
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Content Flow Export</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    h1 { color: #6366f1; text-align: center; }
+                    .header { text-align: center; margin-bottom: 30px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>Content Flow - Content Export</h1>
+                    <p>Generated on ${new Date().toLocaleDateString()}</p>
+                </div>
+                ${content}
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+        this.showToast('Content exported to PDF successfully!', 'success');
+    }
+
+    // Template functionality
+    applyTemplate(templateId) {
+        const template = this.templates.find(t => t.id === templateId);
+        if (!template) {
+            this.showToast('Template not found!', 'error');
+            return;
+        }
+
+        const titleInput = document.getElementById('enhancedContentTitle');
+        const descriptionInput = document.getElementById('enhancedContentDescription');
+        const platformOptions = document.querySelectorAll('.platform-option');
+        const contentTypeSelect = document.getElementById('contentTypeSelect');
+
+        if (titleInput) titleInput.value = template.content.title;
+        if (descriptionInput) descriptionInput.value = template.content.description;
+        if (contentTypeSelect) contentTypeSelect.value = template.type;
+
+        // Select platform
+        platformOptions.forEach(option => {
+            if (option.dataset.platform === template.platform || template.platform === 'All') {
+                option.classList.add('selected');
+                option.style.borderColor = '#6366f1';
+            } else {
+                option.classList.remove('selected');
+                option.style.borderColor = '#e5e7eb';
+            }
+        });
+
+        this.showToast(`Template "${template.title}" applied!`, 'success');
+    }
+
+    createTemplateFromContent(contentId) {
+        const content = this.content.find(item => item.id === contentId);
+        if (!content) {
+            this.showToast('Content not found!', 'error');
+            return;
+        }
+
+        const templateName = prompt('Enter template name:');
+        if (!templateName) return;
+
+        const newTemplate = {
+            id: Date.now().toString(),
+            title: templateName,
+            platform: content.platform,
+            type: content.type,
+            content: {
+                title: content.title,
+                description: content.description,
+                hashtags: content.hashtags || ''
+            }
+        };
+
+        this.templates.push(newTemplate);
+        this.saveTemplates();
+        this.showToast(`Template "${templateName}" created successfully!`, 'success');
+    }
+
+    // Advanced analytics
+    generateAnalyticsReport() {
+        const platformStats = {};
+        const statusStats = {};
+        const typeStats = {};
+
+        this.content.forEach(item => {
+            // Platform stats
+            platformStats[item.platform] = (platformStats[item.platform] || 0) + 1;
+            
+            // Status stats
+            statusStats[item.status] = (statusStats[item.status] || 0) + 1;
+            
+            // Type stats
+            typeStats[item.type] = (typeStats[item.type] || 0) + 1;
+        });
+
+        return {
+            totalContent: this.content.length,
+            platformStats,
+            statusStats,
+            typeStats,
+            upcomingContent: this.content.filter(item => new Date(item.date) > new Date()).length,
+            pastContent: this.content.filter(item => new Date(item.date) < new Date()).length
+        };
+    }
+
+    // Team collaboration features
+    shareContent(contentId) {
+        const content = this.content.find(item => item.id === contentId);
+        if (!content) {
+            this.showToast('Content not found!', 'error');
+            return;
+        }
+
+        const shareData = {
+            title: content.title,
+            text: `Check out this content: ${content.title}`,
+            url: window.location.href
+        };
+
+        if (navigator.share) {
+            navigator.share(shareData);
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(JSON.stringify(content, null, 2));
+            this.showToast('Content data copied to clipboard!', 'success');
+        }
+    }
+
+    // Advanced settings
+    toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDark);
+        this.showToast(`Dark mode ${isDark ? 'enabled' : 'disabled'}!`, 'success');
+    }
+
+    toggleAutoSave() {
+        const autoSave = localStorage.getItem('autoSave') === 'true';
+        localStorage.setItem('autoSave', !autoSave);
+        this.showToast(`Auto-save ${!autoSave ? 'enabled' : 'disabled'}!`, 'success');
+    }
+
+    // Export dropdown functionality
+    setupExportDropdowns() {
+        const exportBtn = document.getElementById('exportDropdownBtn');
+        const exportDropdown = document.getElementById('exportDropdown');
+        const templatesBtn = document.getElementById('templatesDropdownBtn');
+        const templatesDropdown = document.getElementById('templatesDropdown');
+
+        if (exportBtn && exportDropdown) {
+            exportBtn.addEventListener('click', () => {
+                exportDropdown.classList.toggle('hidden');
+                templatesDropdown.classList.add('hidden');
+            });
+        }
+
+        if (templatesBtn && templatesDropdown) {
+            templatesBtn.addEventListener('click', () => {
+                templatesDropdown.classList.toggle('hidden');
+                exportDropdown.classList.add('hidden');
+                this.populateTemplatesDropdown();
+            });
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#exportDropdownBtn') && !e.target.closest('#exportDropdown')) {
+                exportDropdown?.classList.add('hidden');
+            }
+            if (!e.target.closest('#templatesDropdownBtn') && !e.target.closest('#templatesDropdown')) {
+                templatesDropdown?.classList.add('hidden');
+            }
+        });
+    }
+
+    populateTemplatesDropdown() {
+        const templatesList = document.getElementById('templatesList');
+        const templateSelect = document.getElementById('templateSelect');
+        
+        if (templatesList) {
+            templatesList.innerHTML = this.templates.map(template => `
+                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center justify-between" onclick="window.contentFlowApp.applyTemplate('${template.id}')">
+                    <div>
+                        <div class="font-medium">${template.title}</div>
+                        <div class="text-xs text-gray-500">${template.platform} • ${template.type}</div>
+                    </div>
+                    <i class="ri-arrow-right-s-line text-gray-400"></i>
+                </button>
+            `).join('');
+        }
+
+        if (templateSelect) {
+            const currentValue = templateSelect.value;
+            templateSelect.innerHTML = '<option value="">Choose a template...</option>' + 
+                this.templates.map(template => 
+                    `<option value="${template.id}">${template.title} (${template.platform})</option>`
+                ).join('');
+            templateSelect.value = currentValue;
+        }
+    }
+
+    setupTemplateSelection() {
+        const applyTemplateBtn = document.getElementById('applyTemplateBtn');
+        const saveAsTemplateBtn = document.getElementById('saveAsTemplateBtn');
+        const templateSelect = document.getElementById('templateSelect');
+
+        if (applyTemplateBtn) {
+            applyTemplateBtn.addEventListener('click', () => {
+                const selectedTemplate = templateSelect?.value;
+                if (selectedTemplate) {
+                    this.applyTemplate(selectedTemplate);
+                } else {
+                    this.showToast('Please select a template first.', 'info');
+                }
+            });
+        }
+
+        if (saveAsTemplateBtn) {
+            saveAsTemplateBtn.addEventListener('click', () => {
+                const title = document.getElementById('enhancedContentTitle')?.value;
+                const description = document.getElementById('enhancedContentDescription')?.value;
+                const platform = document.querySelector('.platform-option.selected')?.dataset.platform;
+                const type = document.getElementById('contentTypeSelect')?.value;
+
+                if (!title || !description || !platform || !type) {
+                    this.showToast('Please fill in all required fields before saving as template.', 'info');
+                    return;
+                }
+
+                const templateName = prompt('Enter template name:');
+                if (!templateName) return;
+
+                const newTemplate = {
+                    id: Date.now().toString(),
+                    title: templateName,
+                    platform: platform,
+                    type: type,
+                    content: {
+                        title: title,
+                        description: description,
+                        hashtags: ''
+                    }
+                };
+
+                this.templates.push(newTemplate);
+                this.saveTemplates();
+                this.populateTemplatesDropdown();
+                this.showToast(`Template "${templateName}" created successfully!`, 'success');
+            });
+        }
+    }
+
+    setupBulkActionUI() {
+        // Add click handlers to content cards for selection
+        document.addEventListener('click', (e) => {
+            const contentCard = e.target.closest('[data-content-id]');
+            if (contentCard && e.target.closest('.select-checkbox')) {
+                const contentId = contentCard.dataset.contentId;
+                if (this.selectedItems.has(contentId)) {
+                    this.selectedItems.delete(contentId);
+                    contentCard.classList.remove('selected');
+                } else {
+                    this.selectedItems.add(contentId);
+                    contentCard.classList.add('selected');
+                }
+                this.updateBulkActionUI();
+            }
+        });
+    }
+
+    updateBulkActionUI() {
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+        
+        if (bulkActions && selectedCount) {
+            if (this.selectedItems.size > 0) {
+                bulkActions.classList.remove('hidden');
+                selectedCount.textContent = this.selectedItems.size;
+            } else {
+                bulkActions.classList.add('hidden');
+            }
+        }
+    }
+
+    setupDarkMode() {
+        // Check for saved dark mode preference
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Add dark mode toggle to settings
+        const darkModeToggle = document.querySelector('[data-setting="darkMode"]');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                this.toggleDarkMode();
+            });
+        }
+    }
+
+    setupNotifications() {
+        const notificationsBtn = document.getElementById('notificationsBtn');
+        const notificationsDropdown = document.getElementById('notificationsDropdown');
+        const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+        if (notificationsBtn && notificationsDropdown) {
+            notificationsBtn.addEventListener('click', () => {
+                notificationsDropdown.classList.toggle('hidden');
+                this.populateNotifications();
+            });
+        }
+
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', () => {
+                this.markAllNotificationsAsRead();
+            });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#notificationsBtn') && !e.target.closest('#notificationsDropdown')) {
+                notificationsDropdown?.classList.add('hidden');
+            }
+        });
+
+        // Initialize notifications
+        this.initializeNotifications();
+    }
+
+    setupProfileDropdown() {
+        const profileButton = document.getElementById('profileButton');
+        const profileDropdown = document.getElementById('profileDropdown');
+        
+        if (profileButton && profileDropdown) {
+            profileButton.addEventListener('click', () => {
+                profileDropdown.classList.toggle('hidden');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Add event listeners for profile dropdown buttons
+        const profileSettingsBtn = document.getElementById('profileSettingsBtn');
+        if (profileSettingsBtn) {
+            profileSettingsBtn.addEventListener('click', () => {
+                this.openProfileSettings();
+            });
+        }
+        
+        const accountSettingsBtn = document.getElementById('accountSettingsBtn');
+        if (accountSettingsBtn) {
+            accountSettingsBtn.addEventListener('click', () => {
+                this.openAccountSettings();
+            });
+        }
+        
+        const helpCenterBtn = document.getElementById('helpCenterBtn');
+        if (helpCenterBtn) {
+            helpCenterBtn.addEventListener('click', () => {
+                this.openHelpCenter();
+            });
+        }
+        
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.logout();
+            });
+        }
+    }
+
+    initializeNotifications() {
+        // Sample notifications data
+        this.notifications = [
+            {
+                id: 1,
+                type: 'content',
+                title: 'Content Published',
+                message: 'Your Instagram post "Summer Collection" has been published successfully.',
+                time: '2 minutes ago',
+                read: false,
+                icon: 'ri-instagram-line',
+                color: 'text-pink-500'
+            },
+            {
+                id: 2,
+                type: 'reminder',
+                title: 'Content Due Soon',
+                message: 'You have 3 pieces of content scheduled for tomorrow.',
+                time: '1 hour ago',
+                read: false,
+                icon: 'ri-time-line',
+                color: 'text-orange-500'
+            },
+            {
+                id: 3,
+                type: 'analytics',
+                title: 'Weekly Report',
+                message: 'Your weekly performance report is ready to view.',
+                time: '3 hours ago',
+                read: true,
+                icon: 'ri-bar-chart-line',
+                color: 'text-blue-500'
+            },
+            {
+                id: 4,
+                type: 'system',
+                title: 'System Update',
+                message: 'New features have been added to Content Flow.',
+                time: '1 day ago',
+                read: true,
+                icon: 'ri-notification-line',
+                color: 'text-gray-500'
+            }
+        ];
+
+        this.updateNotificationBadge();
+    }
+
+    populateNotifications() {
+        const notificationsList = document.getElementById('notificationsList');
+        if (!notificationsList) return;
+
+        if (this.notifications.length === 0) {
+            notificationsList.innerHTML = `
+                <div class="p-4 text-center text-gray-500">
+                    <i class="ri-notification-off-line text-2xl mb-2"></i>
+                    <p>No notifications</p>
+                </div>
+            `;
+            return;
+        }
+
+        notificationsList.innerHTML = this.notifications.map(notification => `
+            <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}" onclick="window.contentFlowApp.handleNotificationClick(${notification.id})">
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 flex items-center justify-center ${notification.color} bg-gray-100 rounded-full">
+                        <i class="${notification.icon} text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <h5 class="text-sm font-medium text-gray-900">${notification.title}</h5>
+                            <span class="text-xs text-gray-500">${notification.time}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">${notification.message}</p>
+                        ${!notification.read ? '<div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>' : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    handleNotificationClick(notificationId) {
+        const notification = this.notifications.find(n => n.id === notificationId);
+        if (notification && !notification.read) {
+            notification.read = true;
+            this.updateNotificationBadge();
+            this.populateNotifications();
+        }
+
+        // Handle different notification types
+        switch (notification.type) {
+            case 'content':
+                this.showToast('Content management feature opened', 'success');
+                break;
+            case 'reminder':
+                this.showToast('Reminder feature opened', 'info');
+                break;
+            case 'analytics':
+                this.switchSection('analytics');
+                this.showToast('Analytics section opened', 'success');
+                break;
+            case 'system':
+                this.showToast('System information displayed', 'info');
+                break;
+        }
+    }
+
+    markAllNotificationsAsRead() {
+        this.notifications.forEach(notification => {
+            notification.read = true;
+        });
+        this.updateNotificationBadge();
+        this.populateNotifications();
+        this.showToast('All notifications marked as read', 'success');
+    }
+
+    updateNotificationBadge() {
+        const badge = document.getElementById('notificationBadge');
+        const unreadCount = this.notifications.filter(n => !n.read).length;
+        
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    }
+
+    // Profile and account management methods
+    openProfileSettings() {
+        // Close profile dropdown
+        const profileDropdown = document.getElementById('profileDropdown');
+        if (profileDropdown) {
+            profileDropdown.classList.add('hidden');
+        }
+
+        // Navigate to profile section
+        this.switchSection('profile');
+        this.showToast('Profile page opened', 'success');
+    }
+
+    openAccountSettings() {
+        this.switchSection('settings');
+        this.showToast('Account settings opened', 'success');
+    }
+
+    openHelpCenter() {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg w-[600px] mx-auto overflow-hidden max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="font-semibold text-lg">Help & Support</h3>
+                    <button class="close-help-modal w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium mb-2">Getting Started</h4>
+                            <p class="text-sm text-gray-600">Learn how to create your first content and schedule it for publication.</p>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium mb-2">Content Templates</h4>
+                            <p class="text-sm text-gray-600">Use pre-built templates to speed up your content creation process.</p>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium mb-2">Analytics</h4>
+                            <p class="text-sm text-gray-600">Track your content performance and engagement metrics.</p>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium mb-2">Export Data</h4>
+                            <p class="text-sm text-gray-600">Export your content data to CSV or PDF formats.</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-medium mb-2">Need More Help?</h4>
+                        <p class="text-sm text-gray-600 mb-3">Contact our support team for additional assistance.</p>
+                        <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">
+                            Contact Support
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.querySelector('.close-help-modal').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    logout() {
+        const confirmModal = document.createElement('div');
+        confirmModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        confirmModal.innerHTML = `
+            <div class="bg-white rounded-lg w-[300px] mx-auto overflow-hidden">
+                <div class="p-4 border-b">
+                    <h3 class="font-semibold">Sign Out</h3>
+                </div>
+                <div class="p-4">
+                    <p class="text-gray-600 mb-4">Are you sure you want to sign out?</p>
+                    <div class="flex space-x-3">
+                        <button class="confirm-logout flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                            Sign Out
+                        </button>
+                        <button class="cancel-logout flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(confirmModal);
+
+        confirmModal.querySelector('.confirm-logout').addEventListener('click', () => {
+            this.showToast('Signed out successfully', 'success');
+            confirmModal.remove();
+            // In a real app, you would clear user data and redirect to login
+        });
+
+        confirmModal.querySelector('.cancel-logout').addEventListener('click', () => {
+            confirmModal.remove();
+        });
+
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                confirmModal.remove();
+            }
         });
     }
 }
