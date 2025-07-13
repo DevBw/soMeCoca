@@ -758,29 +758,8 @@ class ContentFlowApp {
     }
 
     renderSettingsContent() {
-        const platformConnections = document.getElementById('platformConnections');
-        if (!platformConnections) return;
-        
-        const platforms = [
-            { name: 'Instagram', connected: true, icon: 'ri-instagram-line', color: 'text-pink-500' },
-            { name: 'Twitter', connected: true, icon: 'ri-twitter-line', color: 'text-blue-500' },
-            { name: 'YouTube', connected: false, icon: 'ri-youtube-line', color: 'text-red-500' },
-            { name: 'TikTok', connected: false, icon: 'ri-tiktok-line', color: 'text-purple-500' },
-            { name: 'LinkedIn', connected: true, icon: 'ri-linkedin-box-line', color: 'text-blue-600' },
-            { name: 'Facebook', connected: false, icon: 'ri-facebook-box-line', color: 'text-blue-700' }
-        ];
-        
-        platformConnections.innerHTML = platforms.map(platform => `
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <i class="${platform.icon} ${platform.color} text-lg"></i>
-                    <span class="text-sm text-gray-600">${platform.name}</span>
-                </div>
-                <button class="px-3 py-1 text-xs rounded-full ${platform.connected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
-                    ${platform.connected ? 'Connected' : 'Connect'}
-                </button>
-            </div>
-        `).join('');
+        // Initialize platform connections when settings section is loaded
+        this.setupPlatformConnections();
     }
 
     renderProfileContent() {
@@ -2380,9 +2359,11 @@ class ContentFlowApp {
     }
     
     setupPlatformConnections() {
+        console.log('Setting up platform connections...');
         const platformConnectionsContainer = document.getElementById('platformConnections');
         
         if (platformConnectionsContainer) {
+            console.log('Platform connections container found');
             // Load saved platform connections
             const savedConnections = JSON.parse(localStorage.getItem('platformConnections') || '{}');
             
