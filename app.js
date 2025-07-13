@@ -55,30 +55,57 @@ class ContentFlowApp {
 
         if (prevBtn) {
             prevBtn.addEventListener('click', () => {
-                this.currentDate.setDate(this.currentDate.getDate() - 7);
-                this.renderCalendar();
-                this.updateDateDisplay();
-                this.showToast('Previous week', 'info');
+                this.navigatePrevious();
             });
         }
 
         if (nextBtn) {
             nextBtn.addEventListener('click', () => {
-                this.currentDate.setDate(this.currentDate.getDate() + 7);
-                this.renderCalendar();
-                this.updateDateDisplay();
-                this.showToast('Next week', 'info');
+                this.navigateNext();
             });
         }
 
         if (todayBtn) {
             todayBtn.addEventListener('click', () => {
-                this.currentDate = new Date();
-                this.renderCalendar();
-                this.updateDateDisplay();
-                this.showToast('Jumped to today', 'info');
+                this.jumpToToday();
             });
         }
+    }
+
+    navigatePrevious() {
+        switch(this.currentView) {
+            case 'week':
+                this.currentDate.setDate(this.currentDate.getDate() - 7);
+                break;
+            case 'month':
+                this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+                break;
+            case 'day':
+                this.currentDate.setDate(this.currentDate.getDate() - 1);
+                break;
+        }
+        this.switchView(this.currentView);
+    }
+
+    navigateNext() {
+        switch(this.currentView) {
+            case 'week':
+                this.currentDate.setDate(this.currentDate.getDate() + 7);
+                break;
+            case 'month':
+                this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+                break;
+            case 'day':
+                this.currentDate.setDate(this.currentDate.getDate() + 1);
+                break;
+        }
+        this.switchView(this.currentView);
+    }
+
+    jumpToToday() {
+        this.currentDate = new Date();
+        this.switchView(this.currentView);
+        this.showToast('Jumped to today', 'info');
     }
 
     // Data Management
@@ -497,9 +524,109 @@ class ContentFlowApp {
                 viewButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
                 this.currentView = button.textContent.toLowerCase();
-                this.showToast(`Switched to ${this.currentView} view`, 'info');
+                
+                // Actually implement view switching
+                this.switchView(this.currentView);
             });
         });
+    }
+
+    switchView(viewType) {
+        switch(viewType) {
+            case 'week':
+                this.renderWeekView();
+                break;
+            case 'month':
+                this.renderMonthView();
+                break;
+            case 'day':
+                this.renderDayView();
+                break;
+            default:
+                this.renderWeekView();
+        }
+    }
+
+    renderWeekView() {
+        // Current implementation is already week view
+        this.renderCalendar();
+        this.updateDateDisplay();
+        this.showToast('Week view active', 'info');
+    }
+
+    renderMonthView() {
+        let calendarGrid = document.getElementById('calendarGrid');
+        if (!calendarGrid) return;
+
+        const monthStart = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
+        const monthEnd = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
+        const startDate = new Date(monthStart);
+        startDate.setDate(startDate.getDate() - this.getDayOfWeek(monthStart));
+
+        let html = '';
+        
+        // Generate 6 weeks (42 days) for month view
+        for (let week = 0; week < 6; week++) {
+            for (let day = 0; day < 7; day++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + (week * 7) + day);
+                
+                const isCurrentMonth = currentDate.getMonth() === this.currentDate.getMonth();
+                html += this.renderCalendarCell(currentDate, !isCurrentMonth);
+            }
+        }
+
+        calendarGrid.innerHTML = html;
+        this.setupCalendarEventListeners();
+        this.updateMonthDisplay();
+    }
+
+    renderDayView() {
+        let calendarGrid = document.getElementById('calendarGrid');
+        if (!calendarGrid) return;
+
+        const currentDate = this.currentDate;
+        const dayContent = this.getContentForDate(currentDate.toISOString().split('T')[0]);
+        const filteredContent = this.filterContent(dayContent);
+
+        let html = `
+            <div class="col-span-7">
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <h3 class="text-lg font-semibold mb-4">${currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
+                    <div class="space-y-3">
+        `;
+
+        if (filteredContent.length > 0) {
+            filteredContent.forEach(item => {
+                html += this.renderContentCard(item);
+            });
+        } else {
+            html += `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="ri-calendar-line text-4xl mb-2"></i>
+                    <p>No content scheduled for this day</p>
+                    <button class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90" onclick="window.contentFlowApp.openEnhancedModalWithDate('${currentDate.toISOString().split('T')[0]}')">
+                        Create Content
+                    </button>
+                </div>
+            `;
+        }
+
+        html += `
+                    </div>
+                </div>
+            </div>
+        `;
+
+        calendarGrid.innerHTML = html;
+    }
+
+    updateMonthDisplay() {
+        const dateDisplay = document.getElementById('dateDisplay');
+        if (dateDisplay) {
+            const monthName = this.currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            dateDisplay.textContent = monthName;
+        }
     }
 
     setupFilterChips() {
@@ -1148,25 +1275,18 @@ class ContentFlowApp {
             // Arrow keys for navigation
             if (e.key === 'ArrowLeft') {
                 e.preventDefault();
-                this.currentDate.setDate(this.currentDate.getDate() - 7);
-                this.renderCalendar();
-                this.updateDateDisplay();
+                this.navigatePrevious();
             }
             
             if (e.key === 'ArrowRight') {
                 e.preventDefault();
-                this.currentDate.setDate(this.currentDate.getDate() + 7);
-                this.renderCalendar();
-                this.updateDateDisplay();
+                this.navigateNext();
             }
             
             // T: Jump to today
             if (e.key === 't' || e.key === 'T') {
                 e.preventDefault();
-                this.currentDate = new Date();
-                this.renderCalendar();
-                this.updateDateDisplay();
-                this.showToast('Jumped to today', 'info');
+                this.jumpToToday();
             }
         });
     }
