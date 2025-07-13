@@ -2022,19 +2022,12 @@ class ContentFlowApp {
 
     // Advanced settings
     toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
+        document.documentElement.classList.toggle('dark');
+        const isDark = document.documentElement.classList.contains('dark');
         localStorage.setItem('darkMode', isDark);
         
-        // Update the dark mode icon
-        const darkModeIcon = document.getElementById('darkModeIcon');
-        if (darkModeIcon) {
-            if (isDark) {
-                darkModeIcon.className = 'ri-moon-line text-gray-600';
-            } else {
-                darkModeIcon.className = 'ri-sun-line text-gray-600';
-            }
-        }
+        // Update the settings dark mode toggle
+        this.updateSettingsDarkModeToggle();
         
         this.showToast(`Dark mode ${isDark ? 'enabled' : 'disabled'}!`, 'success');
     }
@@ -2215,35 +2208,41 @@ class ContentFlowApp {
 
     setupDarkMode() {
         // Check for saved dark mode preference
-        const darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) {
-            document.body.classList.add('dark-mode');
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode === 'true') {
+            document.documentElement.classList.add('dark');
         }
 
-        // Set the correct initial icon
-        const darkModeIcon = document.getElementById('darkModeIcon');
-        if (darkModeIcon) {
-            if (darkMode) {
-                darkModeIcon.className = 'ri-moon-line text-gray-600';
-            } else {
-                darkModeIcon.className = 'ri-sun-line text-gray-600';
-            }
-        }
-
-        // Add event listener for dark mode toggle button
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener('click', () => {
-                this.toggleDarkMode();
-            });
-        }
-
-        // Add dark mode toggle to settings (for backward compatibility)
-        const settingsDarkModeToggle = document.querySelector('[data-setting="darkMode"]');
+        // Add event listener for settings dark mode toggle button
+        const settingsDarkModeToggle = document.getElementById('settingsDarkModeToggle');
         if (settingsDarkModeToggle) {
             settingsDarkModeToggle.addEventListener('click', () => {
                 this.toggleDarkMode();
             });
+        }
+
+        // Update settings toggle state on page load
+        this.updateSettingsDarkModeToggle();
+    }
+
+    updateSettingsDarkModeToggle() {
+        const settingsDarkModeToggle = document.getElementById('settingsDarkModeToggle');
+        const settingsDarkModeSlider = document.getElementById('settingsDarkModeSlider');
+        
+        if (settingsDarkModeToggle && settingsDarkModeSlider) {
+            const isDark = document.documentElement.classList.contains('dark');
+            
+            if (isDark) {
+                settingsDarkModeToggle.classList.remove('bg-gray-300');
+                settingsDarkModeToggle.classList.add('bg-primary');
+                settingsDarkModeSlider.classList.remove('left-0.5');
+                settingsDarkModeSlider.classList.add('right-0.5');
+            } else {
+                settingsDarkModeToggle.classList.remove('bg-primary');
+                settingsDarkModeToggle.classList.add('bg-gray-300');
+                settingsDarkModeSlider.classList.remove('right-0.5');
+                settingsDarkModeSlider.classList.add('left-0.5');
+            }
         }
     }
 

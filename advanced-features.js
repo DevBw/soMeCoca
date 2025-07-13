@@ -8,17 +8,13 @@ class ContentFlowAdvancedFeatures {
     }
 
     init() {
-        // Wait for the main app to be ready
-        setTimeout(() => {
-            this.setupDragAndDrop();
-            this.setupTemplates();
-            this.setupAdvancedSearch();
-            this.setupKeyboardShortcuts();
-            this.setupDarkMode();
-            this.setupExportImport();
-            this.setupAnalytics();
-            this.applyDarkMode();
-        }, 500);
+        this.setupDragAndDrop();
+        this.setupTemplates();
+        this.setupAdvancedSearch();
+        this.setupKeyboardShortcuts();
+        this.setupExportImport();
+        this.setupAnalytics();
+        this.loadTemplates();
     }
 
     // Drag & Drop Calendar
@@ -311,95 +307,6 @@ class ContentFlowAdvancedFeatures {
                 this.closeAllModals();
             }
         });
-    }
-
-    // Dark Mode
-    setupDarkMode() {
-        this.addDarkModeToggle();
-    }
-
-    addDarkModeToggle() {
-        const header = document.querySelector('header .flex.items-center.space-x-4');
-        if (header) {
-            const darkModeToggle = document.createElement('button');
-            darkModeToggle.id = 'darkModeToggle';
-            darkModeToggle.className = 'w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer';
-            darkModeToggle.innerHTML = '<i class="ri-sun-line ri-lg"></i>';
-            darkModeToggle.title = 'Toggle Dark Mode (Ctrl+D)';
-            darkModeToggle.addEventListener('click', () => this.toggleDarkMode());
-            
-            header.appendChild(darkModeToggle);
-        }
-    }
-
-    toggleDarkMode() {
-        this.isDarkMode = !this.isDarkMode;
-        localStorage.setItem('darkMode', this.isDarkMode.toString());
-        this.applyDarkMode();
-        
-        const toggle = document.getElementById('darkModeToggle');
-        if (toggle) {
-            toggle.innerHTML = this.isDarkMode ? '<i class="ri-moon-line ri-lg"></i>' : '<i class="ri-sun-line ri-lg"></i>';
-        }
-    }
-
-    applyDarkMode() {
-        const body = document.body;
-        if (this.isDarkMode) {
-            body.classList.add('dark');
-            this.addDarkModeStyles();
-        } else {
-            body.classList.remove('dark');
-            this.removeDarkModeStyles();
-        }
-    }
-
-    addDarkModeStyles() {
-        const style = document.createElement('style');
-        style.id = 'darkModeStyles';
-        style.textContent = `
-            .dark {
-                background-color: #1f2937 !important;
-                color: #f9fafb !important;
-            }
-            .dark header {
-                background-color: #374151 !important;
-                border-bottom-color: #4b5563 !important;
-            }
-            .dark .bg-white {
-                background-color: #374151 !important;
-            }
-            .dark .text-gray-800 {
-                color: #f9fafb !important;
-            }
-            .dark .text-gray-600 {
-                color: #d1d5db !important;
-            }
-            .dark .text-gray-500 {
-                color: #9ca3af !important;
-            }
-            .dark .border-gray-200 {
-                border-color: #4b5563 !important;
-            }
-            .dark .border-gray-300 {
-                border-color: #6b7280 !important;
-            }
-            .dark .calendar-cell {
-                background-color: #374151 !important;
-                border-color: #4b5563 !important;
-            }
-            .dark .calendar-cell.bg-gray-50 {
-                background-color: #1f2937 !important;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    removeDarkModeStyles() {
-        const style = document.getElementById('darkModeStyles');
-        if (style) {
-            style.remove();
-        }
     }
 
     // Export & Import

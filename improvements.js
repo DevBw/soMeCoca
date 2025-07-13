@@ -8,12 +8,11 @@ class ContentFlowImprovements {
 
     init() {
         this.setupEnhancedModal();
-        this.setupCharacterCounters();
         this.setupTagSystem();
+        this.setupCharacterCounters();
         this.setupKeyboardShortcuts();
         this.setupDragAndDrop();
         this.setupSearch();
-        this.setupDarkMode();
     }
 
     // Enhanced Modal System
@@ -240,40 +239,6 @@ class ContentFlowImprovements {
         );
 
         this.displaySearchResults(filtered);
-    }
-
-    // Dark Mode Toggle
-    setupDarkMode() {
-        const darkModeToggle = `
-            <button id="darkModeToggle" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer">
-                <i class="ri-sun-line ri-lg"></i>
-            </button>
-        `;
-        
-        const header = document.querySelector('header .flex.items-center.space-x-4');
-        if (header) {
-            header.insertAdjacentHTML('beforeend', darkModeToggle);
-            
-            const toggle = document.getElementById('darkModeToggle');
-            if (toggle) {
-                toggle.addEventListener('click', () => {
-                    this.toggleDarkMode();
-                });
-            }
-        }
-    }
-
-    toggleDarkMode() {
-        const body = document.body;
-        const isDark = body.classList.contains('dark');
-        
-        if (isDark) {
-            body.classList.remove('dark');
-            localStorage.setItem('darkMode', 'false');
-        } else {
-            body.classList.add('dark');
-            localStorage.setItem('darkMode', 'true');
-        }
     }
 
     // Enhanced Content Creation
