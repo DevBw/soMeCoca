@@ -438,10 +438,10 @@ class ContentFlowApp {
                     </div>
                     <div class="flex items-center space-x-2">
                         <span class="text-xs font-medium px-2 py-1 ${statusColor} rounded-full">${item.status}</span>
-                        <button class="share-content-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100" title="Share" onclick="window.contentFlowApp.shareContent('${item.id}')">
+                        <button class="share-content-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100" title="Share" data-content-id="${item.id}">
                             <i class="ri-share-line text-xs text-gray-500"></i>
                         </button>
-                        <button class="create-template-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100" title="Save as Template" onclick="window.contentFlowApp.createTemplateFromContent('${item.id}')">
+                        <button class="create-template-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100" title="Save as Template" data-content-id="${item.id}">
                             <i class="ri-save-line text-xs text-gray-500"></i>
                         </button>
                         <button class="edit-content-btn w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100" title="Edit">
@@ -887,7 +887,7 @@ class ContentFlowApp {
                 <div class="text-center py-8 text-gray-500">
                     <i class="ri-calendar-line text-4xl mb-2"></i>
                     <p>No content scheduled for this day</p>
-                    <button class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90" onclick="window.contentFlowApp.openEnhancedModalWithDate('${currentDate.toISOString().split('T')[0]}')">
+                    <button class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 create-content-day-btn" data-date="${currentDate.toISOString().split('T')[0]}">
                         Create Content
                     </button>
                 </div>
@@ -1016,6 +1016,14 @@ class ContentFlowApp {
                 }
             });
         });
+        
+        // Add event listener for create content day button
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('create-content-day-btn')) {
+                const date = e.target.dataset.date;
+                this.openEnhancedModalWithDate(date);
+            }
+        });
     }
 
     setupContentCardEventListeners() {
@@ -1030,6 +1038,25 @@ class ContentFlowApp {
                     if (content) {
                         this.openEditModal(content);
                     }
+                });
+            }
+
+            // Add event listeners for share and create template buttons
+            const shareBtn = card.querySelector('.share-content-btn');
+            if (shareBtn) {
+                shareBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const contentId = shareBtn.dataset.contentId;
+                    this.shareContent(contentId);
+                });
+            }
+
+            const createTemplateBtn = card.querySelector('.create-template-btn');
+            if (createTemplateBtn) {
+                createTemplateBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const contentId = createTemplateBtn.dataset.contentId;
+                    this.createTemplateFromContent(contentId);
                 });
             }
 
@@ -2029,6 +2056,23 @@ class ContentFlowApp {
             });
         }
 
+        // Add event listeners for export buttons
+        const exportCsvBtn = document.getElementById('exportCsvBtn');
+        if (exportCsvBtn) {
+            exportCsvBtn.addEventListener('click', () => {
+                this.exportToCSV();
+                exportDropdown.classList.add('hidden');
+            });
+        }
+
+        const exportPdfBtn = document.getElementById('exportPdfBtn');
+        if (exportPdfBtn) {
+            exportPdfBtn.addEventListener('click', () => {
+                this.exportToPDF();
+                exportDropdown.classList.add('hidden');
+            });
+        }
+
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('#exportDropdownBtn') && !e.target.closest('#exportDropdown')) {
@@ -2046,7 +2090,7 @@ class ContentFlowApp {
         
         if (templatesList) {
             templatesList.innerHTML = this.templates.map(template => `
-                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center justify-between" onclick="window.contentFlowApp.applyTemplate('${template.id}')">
+                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center justify-between template-btn" data-template-id="${template.id}">
                     <div>
                         <div class="font-medium">${template.title}</div>
                         <div class="text-xs text-gray-500">${template.platform} • ${template.type}</div>
@@ -2054,6 +2098,15 @@ class ContentFlowApp {
                     <i class="ri-arrow-right-s-line text-gray-400"></i>
                 </button>
             `).join('');
+            
+            // Add event listeners to template buttons
+            const templateButtons = templatesList.querySelectorAll('.template-btn');
+            templateButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const templateId = button.dataset.templateId;
+                    this.applyTemplate(templateId);
+                });
+            });
         }
 
         if (templateSelect) {
@@ -2195,7 +2248,7 @@ class ContentFlowApp {
     }
 
     setupProfileDropdown() {
-        const profileButton = document.getElementById('profileButton');
+        const profileButton = document.getElementById('profileBtn');
         const profileDropdown = document.getElementById('profileDropdown');
         
         if (profileButton && profileDropdown) {
@@ -2304,7 +2357,7 @@ class ContentFlowApp {
         }
 
         notificationsList.innerHTML = this.notifications.map(notification => `
-            <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}" onclick="window.contentFlowApp.handleNotificationClick(${notification.id})">
+            <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer notification-item ${!notification.read ? 'bg-blue-50' : ''}" data-notification-id="${notification.id}">
                 <div class="flex items-start space-x-3">
                     <div class="w-8 h-8 flex items-center justify-center ${notification.color} bg-gray-100 rounded-full">
                         <i class="${notification.icon} text-sm"></i>
@@ -2320,6 +2373,15 @@ class ContentFlowApp {
                 </div>
             </div>
         `).join('');
+        
+        // Add event listeners to notification items
+        const notificationItems = notificationsList.querySelectorAll('.notification-item');
+        notificationItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const notificationId = parseInt(item.dataset.notificationId);
+                this.handleNotificationClick(notificationId);
+            });
+        });
     }
 
     handleNotificationClick(notificationId) {
