@@ -532,6 +532,7 @@ class ContentFlowApp {
     }
 
     switchView(viewType) {
+        console.log('Switching to view:', viewType);
         switch(viewType) {
             case 'week':
                 this.renderWeekView();
@@ -548,6 +549,7 @@ class ContentFlowApp {
     }
 
     renderWeekView() {
+        console.log('Rendering week view');
         // Current implementation is already week view
         this.renderCalendar();
         this.updateDateDisplay();
@@ -555,8 +557,12 @@ class ContentFlowApp {
     }
 
     renderMonthView() {
+        console.log('Rendering month view');
         let calendarGrid = document.getElementById('calendarGrid');
-        if (!calendarGrid) return;
+        if (!calendarGrid) {
+            console.error('Calendar grid not found for month view');
+            return;
+        }
 
         const monthStart = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
         const monthEnd = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
@@ -579,11 +585,16 @@ class ContentFlowApp {
         calendarGrid.innerHTML = html;
         this.setupCalendarEventListeners();
         this.updateMonthDisplay();
+        this.showToast('Month view active', 'info');
     }
 
     renderDayView() {
+        console.log('Rendering day view');
         let calendarGrid = document.getElementById('calendarGrid');
-        if (!calendarGrid) return;
+        if (!calendarGrid) {
+            console.error('Calendar grid not found for day view');
+            return;
+        }
 
         const currentDate = this.currentDate;
         const dayContent = this.getContentForDate(currentDate.toISOString().split('T')[0]);
@@ -619,6 +630,8 @@ class ContentFlowApp {
         `;
 
         calendarGrid.innerHTML = html;
+        this.updateDayDisplay();
+        this.showToast('Day view active', 'info');
     }
 
     updateMonthDisplay() {
@@ -626,6 +639,14 @@ class ContentFlowApp {
         if (dateDisplay) {
             const monthName = this.currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             dateDisplay.textContent = monthName;
+        }
+    }
+
+    updateDayDisplay() {
+        const dateDisplay = document.getElementById('dateDisplay');
+        if (dateDisplay) {
+            const dayName = this.currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            dateDisplay.textContent = dayName;
         }
     }
 
@@ -671,26 +692,19 @@ class ContentFlowApp {
 
         if (prevBtn) {
             prevBtn.addEventListener('click', () => {
-                this.currentDate.setDate(this.currentDate.getDate() - 7);
-                this.renderCalendar();
-                this.updateDateDisplay();
+                this.navigatePrevious();
             });
         }
 
         if (nextBtn) {
             nextBtn.addEventListener('click', () => {
-                this.currentDate.setDate(this.currentDate.getDate() + 7);
-                this.renderCalendar();
-                this.updateDateDisplay();
+                this.navigateNext();
             });
         }
 
         if (todayBtn) {
             todayBtn.addEventListener('click', () => {
-                this.currentDate = new Date();
-                this.renderCalendar();
-                this.updateDateDisplay();
-                this.showToast('Jumped to today', 'info');
+                this.jumpToToday();
             });
         }
     }
