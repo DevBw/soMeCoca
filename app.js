@@ -2300,8 +2300,82 @@ class ContentFlowApp {
 
         // Update theme selector state on page load
         this.updateThemeSelector();
+        
+        // Setup settings toggles
+        this.setupSettingsToggles();
     }
 
+    setupSettingsToggles() {
+        // Email Notifications Toggle
+        const emailToggle = document.getElementById('emailNotificationsToggle');
+        const emailSlider = document.getElementById('emailNotificationsSlider');
+        
+        if (emailToggle && emailSlider) {
+            // Load saved state
+            const emailEnabled = localStorage.getItem('emailNotifications') !== 'false';
+            this.updateToggleState(emailToggle, emailSlider, emailEnabled);
+            
+            emailToggle.addEventListener('click', () => {
+                const newState = !this.isToggleEnabled(emailToggle);
+                this.updateToggleState(emailToggle, emailSlider, newState);
+                localStorage.setItem('emailNotifications', newState);
+                this.showToast(`Email notifications ${newState ? 'enabled' : 'disabled'}`, 'success');
+            });
+        }
+        
+        // Push Notifications Toggle
+        const pushToggle = document.getElementById('pushNotificationsToggle');
+        const pushSlider = document.getElementById('pushNotificationsSlider');
+        
+        if (pushToggle && pushSlider) {
+            // Load saved state
+            const pushEnabled = localStorage.getItem('pushNotifications') === 'true';
+            this.updateToggleState(pushToggle, pushSlider, pushEnabled);
+            
+            pushToggle.addEventListener('click', () => {
+                const newState = !this.isToggleEnabled(pushToggle);
+                this.updateToggleState(pushToggle, pushSlider, newState);
+                localStorage.setItem('pushNotifications', newState);
+                this.showToast(`Push notifications ${newState ? 'enabled' : 'disabled'}`, 'success');
+            });
+        }
+        
+        // Auto-save Drafts Toggle
+        const autoSaveToggle = document.getElementById('autoSaveToggle');
+        const autoSaveSlider = document.getElementById('autoSaveSlider');
+        
+        if (autoSaveToggle && autoSaveSlider) {
+            // Load saved state
+            const autoSaveEnabled = localStorage.getItem('autoSave') !== 'false';
+            this.updateToggleState(autoSaveToggle, autoSaveSlider, autoSaveEnabled);
+            
+            autoSaveToggle.addEventListener('click', () => {
+                const newState = !this.isToggleEnabled(autoSaveToggle);
+                this.updateToggleState(autoSaveToggle, autoSaveSlider, newState);
+                localStorage.setItem('autoSave', newState);
+                this.showToast(`Auto-save ${newState ? 'enabled' : 'disabled'}`, 'success');
+            });
+        }
+    }
+    
+    isToggleEnabled(toggle) {
+        return toggle.classList.contains('bg-primary');
+    }
+    
+    updateToggleState(toggle, slider, enabled) {
+        if (enabled) {
+            toggle.classList.remove('bg-gray-300');
+            toggle.classList.add('bg-primary');
+            slider.classList.remove('left-0.5');
+            slider.classList.add('right-0.5');
+        } else {
+            toggle.classList.remove('bg-primary');
+            toggle.classList.add('bg-gray-300');
+            slider.classList.remove('right-0.5');
+            slider.classList.add('left-0.5');
+        }
+    }
+    
     updateThemeSelector() {
         const themeSelect = document.getElementById('themeSelect');
         

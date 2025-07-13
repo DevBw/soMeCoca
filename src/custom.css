@@ -173,6 +173,25 @@ html.dark #themeSelect option {
     color: #f1f5f9 !important;
 }
 
+/* Toggle switches in dark mode */
+html.dark #emailNotificationsToggle,
+html.dark #pushNotificationsToggle,
+html.dark #autoSaveToggle {
+    background-color: #475569 !important;
+}
+
+html.dark #emailNotificationsToggle.bg-primary,
+html.dark #pushNotificationsToggle.bg-primary,
+html.dark #autoSaveToggle.bg-primary {
+    background-color: #6366f1 !important;
+}
+
+html.dark #emailNotificationsSlider,
+html.dark #pushNotificationsSlider,
+html.dark #autoSaveSlider {
+    background-color: #f1f5f9 !important;
+}
+
 html.dark input:focus,
 html.dark textarea:focus,
 html.dark select:focus {
