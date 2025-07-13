@@ -2025,6 +2025,17 @@ class ContentFlowApp {
         document.body.classList.toggle('dark-mode');
         const isDark = document.body.classList.contains('dark-mode');
         localStorage.setItem('darkMode', isDark);
+        
+        // Update the dark mode icon
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        if (darkModeIcon) {
+            if (isDark) {
+                darkModeIcon.className = 'ri-moon-line text-gray-600';
+            } else {
+                darkModeIcon.className = 'ri-sun-line text-gray-600';
+            }
+        }
+        
         this.showToast(`Dark mode ${isDark ? 'enabled' : 'disabled'}!`, 'success');
     }
 
@@ -2209,10 +2220,28 @@ class ContentFlowApp {
             document.body.classList.add('dark-mode');
         }
 
-        // Add dark mode toggle to settings
-        const darkModeToggle = document.querySelector('[data-setting="darkMode"]');
+        // Set the correct initial icon
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        if (darkModeIcon) {
+            if (darkMode) {
+                darkModeIcon.className = 'ri-moon-line text-gray-600';
+            } else {
+                darkModeIcon.className = 'ri-sun-line text-gray-600';
+            }
+        }
+
+        // Add event listener for dark mode toggle button
+        const darkModeToggle = document.getElementById('darkModeToggle');
         if (darkModeToggle) {
             darkModeToggle.addEventListener('click', () => {
+                this.toggleDarkMode();
+            });
+        }
+
+        // Add dark mode toggle to settings (for backward compatibility)
+        const settingsDarkModeToggle = document.querySelector('[data-setting="darkMode"]');
+        if (settingsDarkModeToggle) {
+            settingsDarkModeToggle.addEventListener('click', () => {
                 this.toggleDarkMode();
             });
         }
