@@ -673,9 +673,6 @@ class ContentFlowApp {
             case 'settings':
                 this.renderSettingsContent();
                 break;
-            case 'profile':
-                this.renderProfileContent();
-                break;
             case 'calendar':
                 this.renderCalendar();
                 this.renderUpcomingContent();
@@ -764,24 +761,7 @@ class ContentFlowApp {
         this.setupPlatformConnections();
     }
 
-    renderProfileContent() {
-        // Profile content is already rendered in HTML, just update any dynamic data
-        const totalContent = this.content.length;
-        const publishedContent = this.content.filter(item => item.status === 'Published').length;
-        const draftContent = this.content.filter(item => item.status === 'Draft').length;
-        const scheduledContent = this.content.filter(item => item.status === 'Scheduled').length;
 
-        // Update statistics if elements exist
-        const totalContentEl = document.querySelector('#profileSection .bg-gray-50:nth-child(1) .text-2xl');
-        const publishedEl = document.querySelector('#profileSection .bg-gray-50:nth-child(2) .text-2xl');
-        const draftsEl = document.querySelector('#profileSection .bg-gray-50:nth-child(3) .text-2xl');
-        const scheduledEl = document.querySelector('#profileSection .bg-gray-50:nth-child(4) .text-2xl');
-
-        if (totalContentEl) totalContentEl.textContent = totalContent;
-        if (publishedEl) publishedEl.textContent = publishedContent;
-        if (draftsEl) draftsEl.textContent = draftContent;
-        if (scheduledEl) scheduledEl.textContent = scheduledContent;
-    }
 
     switchView(viewType) {
         console.log('Switching to view:', viewType);
@@ -2717,9 +2697,9 @@ class ContentFlowApp {
             profileDropdown.classList.add('hidden');
         }
 
-        // Navigate to profile section
-        this.switchSection('profile');
-        this.showToast('Profile page opened', 'success');
+        // Navigate to settings section instead
+        this.switchSection('settings');
+        this.showToast('Settings page opened', 'success');
     }
 
     openAccountSettings() {
