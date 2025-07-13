@@ -41,7 +41,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
     />
     <style>
-      :where([class^="ri-"])::before { content: "\f3c2"; }
+      :where([class^="ri-"])::before { content: ""; }
       body {
           font-family: 'Inter', sans-serif;
           background-color: #f9fafb;
@@ -198,234 +198,15 @@
       </div>
 
       <!-- Calendar grid -->
-      <div class="grid grid-cols-7 gap-1 max-w-4xl mx-auto">
-        <!-- Previous month days (grayed out) -->
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-gray-50 rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs text-gray-400">23</span>
-        </div>
-
-        <!-- Current week days -->
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-white shadow-sm rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs font-medium">24</span>
-          <div class="mt-1 space-y-1">
-            <div class="bg-blue-100 rounded p-1 text-xs flex items-center">
-              <span class="platform-indicator bg-blue-500 mr-1"></span>
-              <span class="truncate">Instagram Post</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-white shadow-sm rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs font-medium">25</span>
-          <div class="mt-1 space-y-1">
-            <div class="bg-purple-100 rounded p-1 text-xs flex items-center">
-              <span class="platform-indicator bg-purple-500 mr-1"></span>
-              <span class="truncate">TikTok Video</span>
-            </div>
-            <div class="bg-red-100 rounded p-1 text-xs flex items-center">
-              <span class="platform-indicator bg-red-500 mr-1"></span>
-              <span class="truncate">YouTube Short</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-white shadow-sm rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs font-medium">26</span>
-          <div class="mt-1 space-y-1">
-            <div class="bg-green-100 rounded p-1 text-xs flex items-center">
-              <span class="platform-indicator bg-green-500 mr-1"></span>
-              <span class="truncate">Blog Post</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-white shadow-sm rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs font-medium">27</span>
-        </div>
-
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-white shadow-sm rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs font-medium">28</span>
-          <div class="mt-1 space-y-1">
-            <div class="bg-blue-100 rounded p-1 text-xs flex items-center">
-              <span class="platform-indicator bg-blue-500 mr-1"></span>
-              <span class="truncate">Instagram Story</span>
-            </div>
-            <div class="bg-cyan-100 rounded p-1 text-xs flex items-center">
-              <span class="platform-indicator bg-cyan-500 mr-1"></span>
-              <span class="truncate">Twitter Post</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-primary bg-opacity-5 border border-primary shadow-sm rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs font-medium text-primary">29</span>
-          <div
-            class="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"
-          ></div>
-          <div class="mt-1 space-y-1">
-            <div
-              class="bg-primary bg-opacity-10 rounded p-1 text-xs flex items-center"
-            >
-              <span class="platform-indicator bg-primary mr-1"></span>
-              <span class="truncate">Newsletter</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-white shadow-sm rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs font-medium">30</span>
-          <div class="mt-1 space-y-1">
-            <div class="bg-red-100 rounded p-1 text-xs flex items-center">
-              <span class="platform-indicator bg-red-500 mr-1"></span>
-              <span class="truncate">YouTube Video</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Next month days (grayed out) -->
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-gray-50 rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs text-gray-400">1</span>
-        </div>
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-gray-50 rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs text-gray-400">2</span>
-        </div>
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-gray-50 rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs text-gray-400">3</span>
-        </div>
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-gray-50 rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs text-gray-400">4</span>
-        </div>
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-gray-50 rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs text-gray-400">5</span>
-        </div>
-        <div
-          class="calendar-cell min-h-[6rem] h-auto bg-gray-50 rounded p-1 relative cursor-pointer"
-        >
-          <span class="text-xs text-gray-400">6</span>
-        </div>
+      <div class="grid grid-cols-7 gap-1 max-w-4xl mx-auto" id="calendarGrid">
+        <!-- Calendar cells will be generated by JavaScript -->
       </div>
 
       <!-- Upcoming content section -->
       <div class="mt-6 max-w-4xl mx-auto">
         <h3 class="text-sm font-semibold mb-2 px-2">Upcoming Content</h3>
-        <div class="space-y-3 px-2">
-          <!-- Content card 1 -->
-          <div class="bg-white shadow-sm rounded-lg p-3 cursor-pointer">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <div
-                  class="w-10 h-10 flex items-center justify-center bg-primary bg-opacity-10 rounded-lg"
-                >
-                  <i class="ri-instagram-line ri-lg text-primary"></i>
-                </div>
-                <div>
-                  <h4 class="text-sm font-medium">Summer Collection Reveal</h4>
-                  <p class="text-xs text-gray-500">
-                    Instagram Post • Today, 3:00 PM
-                  </p>
-                </div>
-              </div>
-              <span
-                class="text-xs font-medium px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full"
-                >Scheduled</span
-              >
-            </div>
-          </div>
-
-          <!-- Content card 2 -->
-          <div class="bg-white shadow-sm rounded-lg p-3 cursor-pointer">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <div
-                  class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-lg"
-                >
-                  <i class="ri-tiktok-line ri-lg text-purple-600"></i>
-                </div>
-                <div>
-                  <h4 class="text-sm font-medium">Behind the Scenes Tour</h4>
-                  <p class="text-xs text-gray-500">
-                    TikTok • Tomorrow, 10:00 AM
-                  </p>
-                </div>
-              </div>
-              <span
-                class="text-xs font-medium px-2 py-1 bg-blue-100 text-blue-700 rounded-full"
-                >Draft</span
-              >
-            </div>
-          </div>
-
-          <!-- Content card 3 -->
-          <div class="bg-white shadow-sm rounded-lg p-3 cursor-pointer">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <div
-                  class="w-10 h-10 flex items-center justify-center bg-red-100 rounded-lg"
-                >
-                  <i class="ri-youtube-line ri-lg text-red-600"></i>
-                </div>
-                <div>
-                  <h4 class="text-sm font-medium">
-                    Product Review: Summer Edition
-                  </h4>
-                  <p class="text-xs text-gray-500">
-                    YouTube • June 30, 2:00 PM
-                  </p>
-                </div>
-              </div>
-              <span
-                class="text-xs font-medium px-2 py-1 bg-green-100 text-green-700 rounded-full"
-                >Ready</span
-              >
-            </div>
-          </div>
-
-          <!-- Content card 4 -->
-          <div class="bg-white shadow-sm rounded-lg p-3 cursor-pointer">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <div
-                  class="w-10 h-10 flex items-center justify-center bg-green-100 rounded-lg"
-                >
-                  <i class="ri-article-line ri-lg text-green-600"></i>
-                </div>
-                <div>
-                  <h4 class="text-sm font-medium">10 Summer Trends for 2025</h4>
-                  <p class="text-xs text-gray-500">Blog • July 2, 9:00 AM</p>
-                </div>
-              </div>
-              <span
-                class="text-xs font-medium px-2 py-1 bg-blue-100 text-blue-700 rounded-full"
-                >Draft</span
-              >
-            </div>
-          </div>
+        <div class="space-y-3 px-2" id="upcomingContent">
+          <!-- Content cards will be generated by JavaScript -->
         </div>
       </div>
     </main>
@@ -622,7 +403,5 @@
 
     <!-- Main App JavaScript -->
     <script src="app.js"></script>
-    <script src="improvements.js"></script>
-    <script src="advanced-features.js"></script>
   </body>
 </html>

@@ -158,17 +158,15 @@ class ContentFlowApp {
 
     // Calendar Rendering
     renderCalendar() {
-        let calendarGrid = document.querySelector('.grid.grid-cols-7.gap-1.max-w-4xl.mx-auto');
+        let calendarGrid = document.getElementById('calendarGrid');
         if (!calendarGrid) {
             // Fallback selector
-            calendarGrid = document.querySelector('.grid.grid-cols-7.gap-1');
+            calendarGrid = document.querySelector('.grid.grid-cols-7.gap-1.max-w-4xl.mx-auto');
         }
         if (!calendarGrid) {
             console.error('Calendar grid not found!');
             return;
         }
-        
-        console.log('Rendering calendar...');
 
         const weekStart = this.getWeekStart(this.currentDate);
         const weekEnd = new Date(weekStart);
@@ -199,7 +197,6 @@ class ContentFlowApp {
         }
 
         calendarGrid.innerHTML = html;
-        console.log('Calendar rendered with', html.split('calendar-cell').length - 1, 'cells');
         this.setupCalendarEventListeners();
     }
 
@@ -253,10 +250,10 @@ class ContentFlowApp {
 
     // Content Rendering
     renderUpcomingContent() {
-        let container = document.querySelector('.space-y-3.px-2');
+        let container = document.getElementById('upcomingContent');
         if (!container) {
             // Fallback selector
-            container = document.querySelector('.space-y-3');
+            container = document.querySelector('.space-y-3.px-2');
         }
         if (!container) {
             console.error('Upcoming content container not found!');
@@ -509,10 +506,8 @@ class ContentFlowApp {
 
     setupCalendarEventListeners() {
         const calendarCells = document.querySelectorAll('.calendar-cell');
-        console.log('Setting up event listeners for', calendarCells.length, 'calendar cells');
         calendarCells.forEach(cell => {
             cell.addEventListener('click', () => {
-                console.log('Calendar cell clicked:', cell.dataset.date);
                 const date = cell.dataset.date;
                 if (date && !cell.classList.contains('bg-gray-50')) {
                     // Add visual feedback
