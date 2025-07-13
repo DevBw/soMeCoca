@@ -167,6 +167,8 @@ class ContentFlowApp {
             console.error('Calendar grid not found!');
             return;
         }
+        
+        console.log('Rendering calendar...');
 
         const weekStart = this.getWeekStart(this.currentDate);
         const weekEnd = new Date(weekStart);
@@ -197,6 +199,7 @@ class ContentFlowApp {
         }
 
         calendarGrid.innerHTML = html;
+        console.log('Calendar rendered with', html.split('calendar-cell').length - 1, 'cells');
         this.setupCalendarEventListeners();
     }
 
@@ -241,7 +244,7 @@ class ContentFlowApp {
         }
 
         return `
-            <div class="${cellClass}" data-date="${dateStr}">
+            <div class="${cellClass}" data-date="${dateStr}" style="cursor: pointer;">
                 <span class="${dateClass}">${dayNumber}</span>
                 ${contentHtml}
             </div>
@@ -506,8 +509,10 @@ class ContentFlowApp {
 
     setupCalendarEventListeners() {
         const calendarCells = document.querySelectorAll('.calendar-cell');
+        console.log('Setting up event listeners for', calendarCells.length, 'calendar cells');
         calendarCells.forEach(cell => {
             cell.addEventListener('click', () => {
+                console.log('Calendar cell clicked:', cell.dataset.date);
                 const date = cell.dataset.date;
                 if (date && !cell.classList.contains('bg-gray-50')) {
                     // Add visual feedback
