@@ -5,68 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Flow</title>
     <link rel="stylesheet" href="./dist/output.css">
+    <link rel="stylesheet" href="./src/custom.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        .calendar-cell {
-            min-height: 80px;
-            transition: all 0.2s ease;
-        }
-        .calendar-cell:hover {
-            transform: scale(1.02);
-        }
-        .calendar-cell:active {
-            transform: scale(0.98);
-        }
-        .view-toggle-button.active {
-            background-color: #6366f1;
-            color: white;
-        }
-        .filter-chip.active {
-            background-color: #6366f1;
-            color: white;
-        }
-        .nav-button.active {
-            color: #6366f1;
-        }
-        .nav-button:not(.active) {
-            color: #6b7280;
-        }
-        .dragging {
-            opacity: 0.5;
-            transform: rotate(5deg);
-        }
-        .drag-over {
-            background-color: #f3f4f6;
-            border: 2px dashed #6366f1;
-        }
-        .selected {
-            background-color: #e0e7ff;
-            border-color: #6366f1;
-        }
-        .dark-mode {
-            background-color: #1f2937;
-            color: #f9fafb;
-        }
-        .dark-mode .bg-white {
-            background-color: #374151;
-            color: #f9fafb;
-        }
-        .dark-mode .border-gray-200 {
-            border-color: #4b5563;
-        }
-        .dark-mode .text-gray-600 {
-            color: #d1d5db;
-        }
-        .dark-mode .text-gray-500 {
-            color: #9ca3af;
-        }
-    </style>
 </head>
 <body>
     <!-- Simple Header -->
